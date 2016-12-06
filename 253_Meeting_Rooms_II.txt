@@ -1,0 +1,81 @@
+/*
+algorithm:
+1. we create a class called Room including List<Interval> and currentAvailable time
+2. sort the intervals by their starting time
+3. create a heap of Rooms, note that the Room with earliest currentAvailable in front. 
+4. everytime there is a new meeting, check the peek of the heap and get the Room -  if meeting start time is earlier than the currentAvailable, create a new Room, move it in, and offer it into heap; otherwise poll the room, make this meeting into this room and offer it back
+5. finally check the size of the Rooms
+*/
+/**
+ * Definition for an interval.
+ * public class Interval {
+ *     int start;
+ *     int end;
+ *     Interval() { start = 0; end = 0; }
+ *     Interval(int s, int e) { start = s; end = e; }
+ * }
+ */
+import java.util.*;
+public class Solution {
+    private class Room {
+        private List<Interval> meetings;
+        private int currentAvailableTime;
+        
+        public Room () {
+            meetings = new ArrayList<>();
+            currentAvailableTime = -1;
+        }
+        
+        public Room(Interval i) {
+            meetings = new ArrayList<>();
+            meetings.add(i);
+            currentAvailableTime = i.end;
+        }
+        
+        public int getCurrentAvailableTime() {
+            return currentAvailableTime;
+        }
+        
+        public void setCurrentAvailableTime(int c) {
+            currentAvailableTime = c;
+        }
+        
+        public void addMeeting(Interval i) {
+            meetings.add(i);
+            currentAvailableTime = i.end;
+        }
+    }
+    
+    public int minMeetingRooms(Interval[] intervals) {
+        if (intervals == null || intervals.length == 0) {
+            return 0;
+        }
+        Arrays.sort(intervals, new Comparator<Interval>() {
+            public int compare(Interval i1, Interval i2) {
+                return i1.start - i2.start;
+            }
+        });
+        PriorityQueue<Room> rooms = new PriorityQueue<>(11, new Comparator<Room>() {
+            public int compare(Room r1, Room r2) {
+                return r1.getCurrentAvailableTime() - r2.getCurrentAvailableTime();
+            }
+        });
+        for (Interval curInterval : intervals) {
+            if (rooms.size() == 0) {
+                Room room = new Room(curInterval);
+                rooms.offer(room);
+                continue;
+            }
+            Room peekRoom = rooms.peek();
+            if (curInterval.start >= peekRoom.getCurrentAvailableTime()) {
+                peekRoom = rooms.poll(); // now it is not the peek room any more, just keep using its name
+                peekRoom.addMeeting(curInterval);
+                rooms.offer(peekRoom);
+            } else {
+                Room room = new Room(curInterval);
+                rooms.offer(room);
+            }
+        }
+        return rooms.size();
+    }
+}
