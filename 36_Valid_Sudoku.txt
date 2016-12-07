@@ -1,0 +1,100 @@
+import java.util.*;
+public class Solution {
+    private int[][] boardInt; // 0 represent unfilled points
+    private int numRows;
+    private int numCols;
+    
+    private void importBoard(char[][] board) {
+        boardInt = new int[numRows][numCols];
+        for (int curRow = 0; curRow < numRows; curRow++) {
+            for (int curCol = 0; curCol < numCols; curCol++) {
+                if (board[curRow][curCol] != '.') {
+                    boardInt[curRow][curCol] = board[curRow][curCol] - '0';
+                } else {
+                    boardInt[curRow][curCol] = 0;
+                }
+            }
+        }
+    }
+    
+    private boolean checkRows(int row) {
+        HashSet<Integer> set = new HashSet<>();
+        for (int i = 0; i < numCols; i++) {
+            if (boardInt[row][i] == 0) {
+                continue;
+            }
+            if (set.contains(boardInt[row][i])) {
+                return false;
+            }
+            set.add(boardInt[row][i]);
+        }
+        return true;
+    }
+    
+    private boolean checkCols(int col) {
+        HashSet<Integer> set = new HashSet<>();
+        for (int i = 0; i < numRows; i++) {
+            if (boardInt[i][col] == 0) {
+                continue;
+            }
+            if (set.contains(boardInt[i][col])) {
+                return false;
+            }
+            set.add(boardInt[i][col]);
+        }
+        return true;
+    }
+    
+    private boolean chechSubSudoku(int row, int col) {
+        HashSet<Integer> set = new HashSet<>();
+        for (int i = row; i < row + 3; i++) {
+            for (int j = col; j < col + 3; j++) {
+                if (boardInt[i][j] == 0) {
+                    continue;
+                }
+                if (set.contains(boardInt[i][j])) {
+                    return false;
+                }
+                set.add(boardInt[i][j]);
+            }
+        }
+        return true;
+    }
+    
+    public boolean isValidSudoku(char[][] board) {
+        if (board == null || board.length != 9) {
+            throw new RuntimeException("board error");
+        }
+        numRows = board.length;
+        if (board[0].length != 9) {
+            throw new RuntimeException("board error");
+        }
+        numCols = board[0].length;
+        importBoard(board);
+        
+        boolean success = true;
+        for (int i = 0; i < numRows; i++) {
+            success = checkRows(i);
+            if (success == false) {
+                return false;
+            }
+        }
+        
+        for (int i = 0; i < numCols; i++) {
+            success = checkCols(i);
+            if (success == false) {
+                return false;
+            }
+        }
+        
+        for (int i = 0; i < numRows; i += 3) {
+            for (int j = 0; j < numCols; j += 3) {
+                success = chechSubSudoku(i, j);
+                if (success == false) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+}
