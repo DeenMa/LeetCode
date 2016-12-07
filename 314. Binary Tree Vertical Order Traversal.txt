@@ -1,0 +1,95 @@
+/*
+algorithm:
+1. create a list of TreeNodeInfo including TreeNode, shift, layer, index information. get all of the nodes by dfs to make sure the left one get a smaller index
+2. then sort the list by 1. shift, 2. layer, 3. index
+3. output
+*/
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+import java.util.*;
+public class Solution {
+    private List<TreeNodeInfo> data;
+    private int index = 0; // this is global
+    
+    private class TreeNodeInfo {
+        public TreeNode treeNode; // for simplicity i define them public here, however in order to satisfy encryption, we shall do private in formal coding
+        public int shift;
+        public int layer;
+        public int index;
+        
+        public TreeNodeInfo(TreeNode tn, int s, int l, int i) {
+            treeNode = tn;
+            shift = s;
+            layer = l;
+            index = i;
+        }
+    }
+    
+    private void importData(TreeNode root) {
+        data = new ArrayList<>();
+        Queue<TreeNodeInfo> queue = new LinkedList<>();
+        TreeNodeInfo rootInfo = new TreeNodeInfo(root, 0, 0, index++);
+        queue.offer(rootInfo);
+        while (queue.peek() != null) {
+            TreeNodeInfo curNodeInfo = queue.poll();
+            data.add(curNodeInfo);
+            if (curNodeInfo.treeNode.left != null) {
+                TreeNodeInfo curLeftInfo = new TreeNodeInfo(curNodeInfo.treeNode.left, curNodeInfo.shift - 1, curNodeInfo.layer + 1, index++);
+                queue.offer(curLeftInfo);
+            }
+            if (curNodeInfo.treeNode.right != null) {
+                TreeNodeInfo curRightInfo = new TreeNodeInfo(curNodeInfo.treeNode.right, curNodeInfo.shift + 1, curNodeInfo.layer + 1, index++);
+                queue.offer(curRightInfo);
+            }
+        }
+    }
+    
+    private void sortData() { // shift > layer > index: smaller first
+        Collections.sort(data, new Comparator<TreeNodeInfo>() {
+            public int compare(TreeNodeInfo t1, TreeNodeInfo t2) {
+                if (t1.shift != t2.shift) {
+                    return t1.shift - t2.shift;
+                }
+                if (t1.layer != t2.layer) {
+                    return t1.layer - t2.layer;
+                }
+                return t1.index - t2.index;
+            }
+        });
+    }
+    
+    private void output(List<List<Integer>> result) {
+        int preShift = data.get(0).shift;
+        List<Integer> curList = new ArrayList<>();
+        curList.add(data.get(0).treeNode.val);
+        for (int tniIndex = 1; tniIndex < data.size(); tniIndex++) {
+            TreeNodeInfo tni = data.get(tniIndex);
+            int curShift = tni.shift;
+            if (curShift != preShift) {
+                result.add(curList);
+                curList = new ArrayList<>();
+            }
+            curList.add(tni.treeNode.val);
+            preShift = curShift;
+        }
+        result.add(curList);
+    }
+    
+    public List<List<Integer>> verticalOrder(TreeNode root) {
+        List<List<Integer>> result = new ArrayList<>();
+        if (root == null) {
+            return result;
+        }
+        importData(root);
+        sortData();
+        output(result);
+        return result;
+    }
+}
