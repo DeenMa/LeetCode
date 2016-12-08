@@ -1,0 +1,53 @@
+/*
+edit distance: add / edit / delete a char
+step 1: find the length difference - if > 1, return false
+if diff == 1, make s longer than t, then check from very front to very end, use diff to record their difference
+if a char is differnt, diff++ and compare s(i + diff) and t(i) until we hit the end (true) or hit another different char (false)
+if diff == 0, then compare s(i) and t(i), when there is a diff, record it and then proceed, until hit the end (true) or hit another different char (false). note: in this case if diff == 0 then we also need to return false (exact the same)
+*/
+public class Solution {
+    public boolean isOneEditDistance(String s, String t) {
+        if (s == null || t == null) {
+            return false;
+        }
+        if (s.length() == t.length()) {
+            int diff = 0;
+            for (int i = 0; i < s.length(); i++) {
+                if (s.charAt(i) != t.charAt(i)) {
+                    diff++;
+                    if (diff > 1) {
+                        return false;
+                    }
+                }
+            }
+            if (diff == 0) {
+                return false;
+            }
+            return true;
+        }
+        
+        String longer;
+        String shorter;
+        if (s.length() > t.length()) {
+            longer = s;
+            shorter = t;
+        } else {
+            longer = t;
+            shorter = s;
+        }
+        if (longer.length() - shorter.length() > 1) {
+            return false;
+        }
+        int diff = 0;
+        for (int i = 0; i < shorter.length(); i++) {
+            if (shorter.charAt(i) != longer.charAt(i + diff)) {
+                diff++;
+                i--; // note that we need to recompare this one with the longer one with shifting
+            }
+            if (diff > 1) {
+                return false;
+            }
+        }
+        return true;
+    }
+}
