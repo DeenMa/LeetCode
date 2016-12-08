@@ -1,0 +1,172 @@
+/*
+algorithm:
+1. build a trie - store all the words
+2. do a traversal of the trie and get all the pairs stored in hashmap
+3. use a hashmap to store all the character and the incoming edges
+4. use Kahn's algorithm: https://en.wikipedia.org/wiki/Topological_sorting to get the order
+*/
+import java.util.*;
+public class Solution {
+    private class TreeNode {
+        public Character character; // make them private in formal coding
+        public List<TreeNode> children; // the reason we do List instead of HashMap because we want to keep the order
+        public TreeNode() {
+            character = '\0';
+            children = new ArrayList<>();
+        }
+        public TreeNode(Character c) {
+            character = c;
+            children = new ArrayList<>();
+        }
+        public TreeNode find(Character c) {
+            for (int i = 0; i < children.size(); i++) {
+                if (children.get(i).character == c) {
+                    return children.get(i);
+                }
+            }
+            return null;
+        }
+        public TreeNode add(Character c) {
+            TreeNode nxtNode = new TreeNode(c);
+            children.add(nxtNode);
+            return nxtNode;
+        }
+    }
+    
+    private TreeNode root;
+    private HashMap<Character, List<Character>> pairs; // is it better to make them TreeNodes - let's try first
+    private HashMap<Character, Integer> edgesIncoming;
+    
+    private void buildTrie(String[] words) {
+        root = new TreeNode();
+        for (String curWord : words) {
+            TreeNode curNode = root;
+            for (int curCharIndex = 0; curCharIndex < curWord.length(); curCharIndex++) {
+                Character curChar = curWord.charAt(curCharIndex);
+                if (curNode.find(curChar) == null) {
+                    TreeNode nxtNode = curNode.add(curChar);
+                    curNode = nxtNode;
+                } else {
+                    curNode = curNode.find(curChar);
+                }
+            }
+        }
+    }
+    
+    private void getNodeInfoUtil(Stack<TreeNode> stack, TreeNode tn) {
+        stack.push(tn);
+        // get pairs and edgeInformation information
+        if (tn.children.size() > 1) {
+            TreeNode curChild = tn.children.get(0);
+            if (!edgesIncoming.containsKey(curChild.character)) {
+                edgesIncoming.put(curChild.character, 0);
+            }
+            for (int curChildIndex = 1; curChildIndex < tn.children.size(); curChildIndex++) {
+                // update pairs
+                curChild = tn.children.get(curChildIndex);
+                if (!pairs.containsKey(tn.children.get(curChildIndex - 1).character)) {
+                    List<Character> list = new ArrayList<>();
+                    list.add(tn.children.get(curChildIndex).character);
+                    pairs.put(tn.children.get(curChildIndex - 1).character, list);
+                } else {
+                    List<Character> list = pairs.get(tn.children.get(curChildIndex - 1).character);
+                    list.add(tn.children.get(curChildIndex).character);
+                }
+                // update edgesInformation
+                if (!edgesIncoming.containsKey(curChild.character)) {
+                    edgesIncoming.put(curChild.character, 1);
+                } else {
+                    edgesIncoming.put(curChild.character, edgesIncoming.get(curChild.character) + 1);
+                }
+            }
+        }
+        for (int i = 0; i < tn.children.size(); i++) {
+            getNodeInfoUtil(stack, tn.children.get(i));
+        }
+        stack.pop();
+    }
+    
+    // dfs traversal
+    private void getNodeInfo() {
+        pairs = new HashMap<>();
+        edgesIncoming = new HashMap<>();
+        Stack<TreeNode> stack = new Stack<>();
+        getNodeInfoUtil(stack, root);
+    }
+    
+    private Queue<Character> getAllNodesWithZeroEdgesIncoming() {
+        Queue<Character> queue = new LinkedList<>();
+        Set<Character> start = pairs.keySet();
+        Iterator<Character> i = start.iterator();
+        while (i.hasNext()) {
+            Character c = i.next();
+            if (!edgesIncoming.containsKey(c)) {
+                throw new RuntimeException("cannot find key");
+            }
+            if (edgesIncoming.get(c) == 0) {
+                queue.add(c);
+            }
+        }
+        return queue;
+    }
+    
+    private String topoSort() {
+        StringBuilder sb = new StringBuilder(); // Empty list that will contain the sorted elements
+        Queue<Character> queue = getAllNodesWithZeroEdgesIncoming(); // Set of all nodes with no incoming edges 
+        while (queue.size() != 0) { // while S is non-empty do
+            Character curChar = queue.poll(); // remove a node n from S
+            sb.append(curChar); // add n to tail of L
+            List<Character> list = pairs.get(curChar);
+            if (list == null) { // note that if a node does not have an out-going edge, it will not appear in the keys of pairs, therefore we shall continue in this case
+                continue;
+            }
+            for (int nxtCharIndex = 0; nxtCharIndex < list.size(); nxtCharIndex++) {
+                Character nxtChar = list.get(nxtCharIndex);
+                edgesIncoming.put(nxtChar, edgesIncoming.get(nxtChar) - 1);
+                if (edgesIncoming.get(nxtChar) < 1) {
+                    queue.offer(nxtChar);
+                    edgesIncoming.remove(nxtChar);
+                }
+            }
+            pairs.remove(curChar); // remove all the edges from this node
+        }
+        if (!pairs.isEmpty()) { // contain loops
+            return "";
+        }
+        return sb.toString();
+    }
+    
+    private String findNodesWithoutEdge(String[] words) { // note that there are some nodes single - don't connect to any other nodes, no edges involved
+        HashSet<Character> alphabets = new HashSet<>();
+        for (String curWord : words) { // add
+            for (int curCharIndex = 0; curCharIndex < curWord.length(); curCharIndex++) {
+                if (!alphabets.contains(curWord.charAt(curCharIndex))) {
+                    alphabets.add(curWord.charAt(curCharIndex));
+                }
+            }
+        }
+        Iterator<Character> i = edgesIncoming.keySet().iterator();
+        while (i.hasNext()) {
+            Character c = i.next();
+            if (alphabets.contains(c)) {
+                alphabets.remove(c);
+            }
+        }
+        StringBuilder sb = new StringBuilder();
+        i = alphabets.iterator();
+        while (i.hasNext()) {
+            sb.append(i.next());
+        }
+        return sb.toString();
+    }
+    
+    public String alienOrder(String[] words) {
+        if (words == null || words.length == 0) {
+            throw new RuntimeException("No input!");
+        }
+        buildTrie(words);
+        getNodeInfo();
+        String nodesWithoutEdge = findNodesWithoutEdge(words);
+        return nodesWithoutEdge + topoSort();
+    }
+}
