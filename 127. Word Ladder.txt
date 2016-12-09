@@ -1,0 +1,66 @@
+import java.util.*;
+public class Solution {
+    private Queue<String> queue;
+    private HashMap<String, Integer> map;
+    
+    private boolean oneDistance(String a, String b) { // assume same length
+        int diff = 0;
+        for (int i = 0; i < a.length(); i++) {
+            if (a.charAt(i) != b.charAt(i)) {
+                diff++;
+            }
+            if (diff > 1) {
+                return false;
+            }
+        }
+        if (diff == 0) {
+            return false;
+        }
+        return true;
+    }
+    
+    public int ladderLength(String beginWord, String endWord, Set<String> wordList) {
+        if (beginWord == null || endWord == null || wordList == null) {
+            return 0;
+        }
+        if (beginWord.equals(endWord)) {
+            return 1;
+        }
+
+        queue = new LinkedList<>();
+        map = new HashMap<>();
+        queue.offer(beginWord);
+        
+        if (wordList.contains(beginWord)) { // remove beginWord, if it exists
+            wordList.remove(beginWord);
+        }
+        map.put(beginWord, 1);
+        
+        while (queue.peek() != null) {
+            String curWord = queue.poll(); // curWord, unless it is the begin word, should be assigned with a distance
+            if (oneDistance(curWord, endWord)) { // first we compare with the endWord
+                return map.get(curWord) + 1;
+            }
+            
+            Iterator<String> i = wordList.iterator();
+            List<String> removeList = new ArrayList<>(); // remove the compared strings to reduce size of set
+            while (i.hasNext()) {
+                String word = i.next();
+                if (oneDistance(word, curWord)) {
+                    if (!map.containsKey(word)) { // we only add it when it has not appeared before
+                        map.put(word, map.get(curWord) + 1);
+                        queue.offer(word);
+                        removeList.add(word);
+                    }
+                }
+            }
+            for (int curIndex = 0; curIndex < removeList.size(); curIndex++) {
+                String removeWord = removeList.get(curIndex);
+                if (wordList.contains(removeWord)) {
+                    wordList.remove(removeWord);
+                }
+            }
+        }
+        return 0; // cannot find
+    }
+}
