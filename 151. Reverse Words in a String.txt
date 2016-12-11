@@ -1,0 +1,44 @@
+/*
+algorithm:
+1. reverse sentence
+2. reverse each word
+*/
+import java.util.*;
+public class Solution {
+    public String reverseWords(String s) {
+        if (s == null || s.length() == 0) {
+            return s;
+        }
+        char[] sArray = new char[s.length()];
+        for (int i = 0; i < sArray.length; i++) {
+            sArray[i] = s.charAt(s.length() - 1 - i);
+        }
+        
+        StringBuilder sb = new StringBuilder();
+        int start = 0;
+        while (start < sArray.length && sArray[start] == ' ') { // jump some spaces, if exist
+            start++;
+        }
+        int end = start;
+        while (end < sArray.length) {
+            if (end == sArray.length - 1 || sArray[end + 1] == ' ') {
+                for (int i = end; i >= start; i--) {
+                    sb.append(sArray[i]);
+                }
+                sb.append(' ');
+                start = end + 1;
+                while (start < sArray.length && sArray[start] == ' ') { // jump spaces
+                    start++;
+                }
+                end = start;
+                continue;
+            }
+            end++;
+        }
+        String sbString = sb.toString();
+        if (sbString.length() > 1 && sbString.charAt(sbString.length() - 1) == ' ') { // remove the last space
+            return sbString.substring(0, sbString.length() - 1);
+        }
+        return sbString;
+    }
+}
