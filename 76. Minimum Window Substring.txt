@@ -1,0 +1,107 @@
+/*
+step 1: search on the right until we find a window which contains all, then stop - note: this might be a optimal solution so save it as a candidate
+step 2: remove on the left all the occurances until it cannot contains all, then stop at the nearest 
+step 3: repeat step 1 and 2 until reach the end of the S
+data structure:
+we use two hashmaps - one is to store all the characters in t and their occurances, another one is traveling through s
+*/
+import java.util.*;
+public class Solution {
+    private HashMap<Character, Integer> tInfo;
+    private HashMap<Character, Integer> sInfo;
+    private String curShortestString;
+    private int pointerRight;
+    private int pointerLeft;
+    
+    private void addCharToHashMap(HashMap<Character, Integer> map, Character c) {
+        if (map.containsKey(c)) {
+            map.put(c, map.get(c) + 1);
+        } else {
+            map.put(c, 1);
+        }
+    }
+    
+    private void removeCharFromHashMap(HashMap<Character, Integer> map, Character c) {
+        if (!map.containsKey(c) || map.get(c) == 0) {
+            throw new RuntimeException("Cannot remove! Already empty!");
+        } else {
+            map.put(c, map.get(c) - 1);
+        }
+    }
+    
+    private void getTargetStringInfo(String t) {
+        tInfo = new HashMap<>();
+        for (int curCharIndex = 0; curCharIndex < t.length(); curCharIndex++) {
+            char curChar = t.charAt(curCharIndex);
+            addCharToHashMap(tInfo, curChar);
+        }
+    }
+    
+    private boolean sInfoContainstInfo() {
+        Iterator<Character> i = tInfo.keySet().iterator();
+        while (i.hasNext()) {
+            Character c = i.next();
+            if (!sInfo.containsKey(c)) {
+                return false;
+            }
+            if (sInfo.get(c) < tInfo.get(c)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    private void updateCurShortestString(String s) {
+        String candidate = s.substring(pointerLeft, pointerRight);
+        if (curShortestString == null) {
+            curShortestString = new String(candidate); // to make sure it is a deep copy
+        } else if (candidate.length() < curShortestString.length()) {
+            curShortestString = new String(candidate);
+        }
+    }
+    
+    private void movePointerRightUntilFindStringContainsAll(String s) {
+        while (pointerRight < s.length()) {
+            if (tInfo.containsKey(s.charAt(pointerRight))) {
+                addCharToHashMap(sInfo, s.charAt(pointerRight));
+                if (sInfoContainstInfo()) {
+                    pointerRight++;
+                    updateCurShortestString(s);
+                    return;
+                }
+            }
+            pointerRight++;
+        }
+    }
+    
+    private void movePointerLeftUnitlLostStringContainsAll(String s) {
+        while (pointerLeft < pointerRight) {
+            if (tInfo.containsKey(s.charAt(pointerLeft))) {
+                if (!sInfoContainstInfo()) { // keep current pointerLeft unchanged
+                    return;
+                }
+                updateCurShortestString(s);
+                removeCharFromHashMap(sInfo, s.charAt(pointerLeft));
+            }
+            pointerLeft++;
+        }
+    }
+    
+    public String minWindow(String s, String t) {
+        if (s == null || s.length() == 0 || t == null || t.length() == 0) {
+            return "";
+        }
+        pointerLeft = 0;
+        pointerRight = 0;
+        getTargetStringInfo(t);
+        sInfo = new HashMap<>();
+        while (pointerRight < s.length()) {
+            movePointerRightUntilFindStringContainsAll(s); // update the input / output
+            movePointerLeftUnitlLostStringContainsAll(s); // update the input / output
+        }
+        if (pointerRight == s.length() && curShortestString == null) {
+            return "";
+        }
+        return curShortestString;
+    }
+}
