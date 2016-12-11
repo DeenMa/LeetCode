@@ -1,0 +1,47 @@
+/*
+algorithm:
+1. sort the candidates
+2. use backtracing to get all the pairs
+3. use hashmap to remove duplicates
+*/
+import java.util.*;
+public class Solution {
+    private void getAllCombinationsMayIncludeDuplicates(List<List<Integer>> results, List<Integer> curResult, int curIndex, int[] candidates, int target) {
+        if (target == 0) {
+            results.add(curResult);
+            return;
+        }
+        if (target < 0 || curIndex == candidates.length) {
+            return;
+        }
+        for (int addIndex = curIndex; addIndex < candidates.length; addIndex++) {
+            List<Integer> addResult = new ArrayList<>(curResult);
+            addResult.add(candidates[addIndex]);
+            getAllCombinationsMayIncludeDuplicates(results, addResult, addIndex, candidates, target - candidates[addIndex]);
+        }
+    }
+    
+    private void removeDuplicates(List<List<Integer>> results) {
+        HashSet<List<Integer>> set = new HashSet<>();
+        for (int curIndex = 0; curIndex < results.size(); curIndex++) {
+            if (set.contains(results.get(curIndex))) {
+                results.remove(curIndex);
+                curIndex--;
+            } else {
+                set.add(results.get(curIndex));
+            }
+        }
+    }
+    
+    public List<List<Integer>> combinationSum(int[] candidates, int target) {
+        List<List<Integer>> results = new ArrayList<>();
+        if (candidates == null || candidates.length == 0) {
+            return results;
+        }
+        Arrays.sort(candidates);
+        List<Integer> curResult = new ArrayList<>();
+        getAllCombinationsMayIncludeDuplicates(results, curResult, 0, candidates, target);
+        removeDuplicates(results);
+        return results;
+    }
+}
