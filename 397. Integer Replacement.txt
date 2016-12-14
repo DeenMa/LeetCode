@@ -1,0 +1,38 @@
+/*
+algorithm: back-tracing
+
+*/
+public class Solution {
+    private int globalMin;
+    private void updateProcess(List<Integer> process, int m) { // m means current value
+        if (m == 1) {
+            if (process.size() < globalMin) { // check whether size() or size() + 1 or something else
+                globalMin = process.size();
+            }
+            return;
+        }
+        
+        process.add(m);
+        if (m % 2 == 0) {
+            updateProcess(process, m / 2);
+        } else {
+            List<Integer> processAdd = new ArrayList<>(process);
+            if (m == Integer.MAX_VALUE) { // this is an odd, we need to take care
+                processAdd.add(m); // though it should be m + 1
+                processAdd.add(m / 2 + 1); // this is the value (Integer.MAX_VALUE + 1) / 2
+                updateProcess(processAdd, m / 2 + 1);
+            } else {
+                updateProcess(processAdd, m + 1);
+            }
+            List<Integer> processMinus = new ArrayList<>(process);
+            updateProcess(processMinus, m - 1);
+        }
+    }
+    
+    public int integerReplacement(int n) {
+        globalMin = Integer.MAX_VALUE;
+        List<Integer> process = new ArrayList<>();
+        updateProcess(process, n);
+        return globalMin;
+    }
+}
