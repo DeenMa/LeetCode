@@ -1,0 +1,75 @@
+import java.util.*;
+public class Solution {
+    private void calculateCharactersInCurrentString(HashMap<Character, Integer> map, String string) {
+        for (int curCharIndex = 0; curCharIndex < string.length(); curCharIndex++) {
+            Character curChar = string.charAt(curCharIndex);
+            if (!map.containsKey(curChar)) {
+                map.put(curChar, 1);
+            } else {
+                map.put(curChar, map.get(curChar) + 1);
+            }
+        }
+    }
+    
+    private void getNotQualified(HashMap<Character, Integer> map, HashSet<Character> charNotQualified, int threshold) {
+        Iterator<Character> i = map.keySet().iterator();
+        while (i.hasNext()) {
+            Character curChar = i.next();
+            if (map.get(curChar) < threshold) {
+                charNotQualified.add(curChar);
+            }
+        }
+    }
+    
+    private void putBackAllSubstrings(Queue<String> queue, String string, HashSet<Character> charNotQualified) {
+        int startIndex = 0;
+        int endIndex = 0;
+        for (int curCharIndex = 0; curCharIndex < string.length(); curCharIndex++) {
+            Character curChar = string.charAt(curCharIndex);
+            if (charNotQualified.contains(curChar)) {
+                endIndex = curCharIndex;
+                if (startIndex < endIndex) {
+                    queue.offer(string.substring(startIndex, endIndex));
+                }
+                startIndex = endIndex + 1;
+            }
+        }
+        if (startIndex < string.length()) {
+            queue.offer(string.substring(startIndex));
+        }
+    }
+    
+    private String print(HashSet<Character> charNotQualified) {
+        StringBuilder sb = new StringBuilder();
+        Iterator<Character> i = charNotQualified.iterator();
+        while (i.hasNext()) {
+            sb.append(i.next()).append(' ');
+        }
+        return sb.toString();
+    }
+    
+    public int longestSubstring(String s, int k) {
+        if (s == null) {
+            return 0;
+        }
+        int result = 0;
+        Queue<String> queue = new LinkedList<>();
+        queue.offer(s);
+        while (queue.peek() != null) {
+            String curString = queue.poll();
+            if (curString.length() < k) { // discard directly
+                continue;
+            }
+            HashMap<Character, Integer> map = new HashMap<>();
+            HashSet<Character> charNotQualified = new HashSet<>();
+            calculateCharactersInCurrentString(map, curString);
+            getNotQualified(map, charNotQualified, k);
+            if (charNotQualified.size() == 0) { // all characters qualified, this string is good
+                result = Math.max(result, curString.length());
+                continue;
+            }
+            putBackAllSubstrings(queue, curString, charNotQualified);
+        }
+        return result;
+    }
+}
