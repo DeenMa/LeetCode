@@ -1,0 +1,71 @@
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+public class Solution {
+    private int globalMax;
+    private class TreeNodeInfo {
+        int val;
+        int maxSingleBranch;
+        int maxDoubleBranch;
+        TreeNodeInfo left;
+        TreeNodeInfo right;
+        
+        TreeNodeInfo(TreeNode tn) {
+            val = tn.val;
+            maxSingleBranch = 0;
+            maxDoubleBranch = 0;
+            left = null;
+            right = null;
+        }
+    }
+    
+    private TreeNodeInfo getTreeNodeInfoRoot(TreeNode tn) {
+        TreeNodeInfo tni = new TreeNodeInfo(tn);
+        if (tn.left != null) {
+            tni.left = getTreeNodeInfoRoot(tn.left);
+        }
+        if (tn.right != null) {
+            tni.right = getTreeNodeInfoRoot(tn.right);
+        }
+        return tni;
+    }
+    
+    private void getMaxInfo(TreeNodeInfo tni) {
+        if (tni.left == null && tni.right == null) {
+            tni.maxSingleBranch = tni.val;
+            tni.maxDoubleBranch = tni.maxSingleBranch;
+        } else if (tni.right == null) { // left has child
+            getMaxInfo(tni.left);
+            tni.maxSingleBranch = Math.max(tni.left.maxSingleBranch, 0) + tni.val;
+            tni.maxDoubleBranch = tni.maxSingleBranch;
+        } else if (tni.left == null) { // right has child
+            getMaxInfo(tni.right);
+            tni.maxSingleBranch = Math.max(tni.right.maxSingleBranch, 0) + tni.val;
+            tni.maxDoubleBranch = tni.maxSingleBranch;
+        } else {
+            getMaxInfo(tni.left);
+            getMaxInfo(tni.right);
+            tni.maxDoubleBranch = Math.max(Math.max(tni.left.maxSingleBranch, tni.right.maxSingleBranch), Math.max(tni.left.maxSingleBranch + tni.right.maxSingleBranch, 0)) + tni.val;
+            tni.maxSingleBranch = Math.max(Math.max(tni.left.maxSingleBranch, tni.right.maxSingleBranch), 0) + tni.val;
+        }
+        if (tni.maxDoubleBranch > globalMax) {
+            globalMax = tni.maxDoubleBranch;
+        }
+    }
+    
+    public int maxPathSum(TreeNode root) {
+        if (root == null) {
+            return 0;
+        }
+        TreeNodeInfo rootInfo = getTreeNodeInfoRoot(root);
+        globalMax = rootInfo.val;
+        getMaxInfo(rootInfo);
+        return globalMax;
+    }
+}
