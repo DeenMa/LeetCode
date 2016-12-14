@@ -1,0 +1,11 @@
+    private LinkedList reverse(LinkedList head) {
+        LinkedList pre = null;
+        LinkedList cur = head;
+        while (cur != null) {
+            LinkedList nxt = cur.next;
+            cur.next = pre;
+            pre = cur;
+            cur = nxt;
+        }
+        return pre;
+    }

@@ -1,0 +1,33 @@
+    // recursive
+    private void inorderTraversalUtil(TreeNode tn) {
+        if (tn.left != null) {
+            inorderTraversalUtil(tn.left);
+        }
+        System.out.println(tn.data);
+        if (tn.right != null) {
+            inorderTraversalUtil(tn.right);
+        }
+    }
+    
+    private void inorderTraversalRecursive(TreeNode root) {
+        if (root == null) {
+            return;
+        }
+        inorderTraversalUtil(root);
+    }
+
+    // iterative
+    private void inorderTreversalIterative(TreeNode root) {
+        Stack<TreeNode> stack = new Stack<>();
+        TreeNode cur = root;
+        while (cur != null || !stack.empty()) {
+            if (cur != null) {
+                stack.push(cur);
+                cur = cur.left;
+            } else {
+                TreeNode peek = stack.pop();
+                System.out.println(peek.data);
+                cur = peek.right;
+            }
+        }
+    }

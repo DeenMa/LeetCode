@@ -1,0 +1,33 @@
+    private void swap(int[] nums, int i1, int i2) {
+        int temp = nums[i1];
+        nums[i1] = nums[i2];
+        nums[i2] = temp;
+    }
+    
+    private int findPivot(int[] nums, int start, int end) {
+        swap(nums, start, end);
+        int pivot = start;
+        for (int i = start; i <= end; i++) {
+            if (nums[i] < nums[end]) {
+                swap(nums, pivot, i);
+                pivot++;
+            }
+        }
+        swap(nums, pivot, end);
+        return pivot;
+    }
+    
+    private void quickSortUtil(int[] nums, int start, int end) {
+        int pivot = findPivot(nums, start, end); // during this process, the left and right part has already been seperated
+        if (start < end) {
+            quickSortUtil(nums, start, pivot - 1);
+            quickSortUtil(nums, pivot + 1, end);
+        }
+    }
+    
+    public void quickSort(int[] nums) {
+        if (nums == null || nums.length < 2) {
+            return;
+        }
+        quickSortUtil(nums, 0, nums.length - 1);
+    }
