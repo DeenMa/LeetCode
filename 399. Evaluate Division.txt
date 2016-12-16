@@ -1,0 +1,90 @@
+import java.util.*;
+public class Solution {
+    private class Vertice {
+        String parameter;
+        List<Edge> edges; // we only store outbound edges - and it might be better to store as a hashset, let's go and see
+        public Vertice(String p) {
+            parameter = p;
+            edges = new ArrayList<>();
+        }
+    }
+    
+    private class Edge {
+        Vertice start;
+        Vertice end;
+        double weight;
+        public Edge(Vertice s, Vertice e, double w) {
+            start = s;
+            end = e;
+            weight = w;
+        }
+    }
+    
+    private class VerticeWeightInfo {
+        Vertice vertice;
+        double weight;
+        public VerticeWeightInfo(Vertice v, double w) {
+            vertice = v;
+            weight = w;
+        }
+    }
+    
+    private HashMap<String, Vertice> vertices; // store all the vertice for the whole equations - note it may contains several graphs
+    
+    private void createGraphs(String[][] equations, double[] values) {
+        vertices = new HashMap<>();
+        for (int curEquationIndex = 0; curEquationIndex < equations.length; curEquationIndex++) {
+            String curStart = equations[curEquationIndex][0];
+            String curEnd = equations[curEquationIndex][1];
+            double curWeight = values[curEquationIndex];
+            if (!vertices.containsKey(curStart)) {
+                Vertice vStart = new Vertice(curStart);
+                vertices.put(curStart, vStart);
+            }
+            if (!vertices.containsKey(curEnd)) {
+                Vertice vEnd = new Vertice(curEnd);
+                vertices.put(curEnd, vEnd);
+            }
+            Edge eForward = new Edge(vertices.get(curStart), vertices.get(curEnd), curWeight);
+            Edge eBackward = new Edge(vertices.get(curEnd), vertices.get(curStart), 1.0 / curWeight);
+            vertices.get(curStart).edges.add(eForward);
+            vertices.get(curEnd).edges.add(eBackward);
+        }
+    }
+    
+    public double getCurrentQueryResult(String startString, String endString) {
+        if (!vertices.containsKey(startString) || !vertices.containsKey(endString)) {
+            return -1.0; // even if they are the same
+        }
+        // bfs to search the destination, use hashmap to store the visited nodes
+        HashSet<Vertice> visited = new HashSet<>();
+        visited.add(vertices.get(startString));
+        Queue<VerticeWeightInfo> queue = new LinkedList<>();
+        queue.offer(new VerticeWeightInfo(vertices.get(startString), 1.0));
+        while (queue.peek() != null) {
+            VerticeWeightInfo curVerticeWeightInfo = queue.poll();
+            if (endString.equals(curVerticeWeightInfo.vertice.parameter)) {
+                return curVerticeWeightInfo.weight;
+            }
+            for (int curEdgeIndex = 0; curEdgeIndex < curVerticeWeightInfo.vertice.edges.size(); curEdgeIndex++) {
+                Edge curEdge = curVerticeWeightInfo.vertice.edges.get(curEdgeIndex);
+                Vertice nxtVertice = curEdge.end;
+                if (visited.contains(nxtVertice)) {
+                    continue;
+                }
+                queue.offer(new VerticeWeightInfo(nxtVertice, curVerticeWeightInfo.weight * curEdge.weight));
+                visited.add(nxtVertice);
+            }
+        }
+        return -1.0; // startString and endString are not in one graph
+    }
+    
+    public double[] calcEquation(String[][] equations, double[] values, String[][] queries) {
+        createGraphs(equations, values); // return vertices - each vertice, if spread out, forms a single graph
+        double[] result = new double[queries.length];
+        for (int curQueryIndex = 0; curQueryIndex < queries.length; curQueryIndex++) {
+            result[curQueryIndex] = getCurrentQueryResult(queries[curQueryIndex][0], queries[curQueryIndex][1]);
+        }
+        return result;
+    }
+}
