@@ -1,0 +1,95 @@
+/*
+algorithm:
+find the first half - then 1-1 mapping to get the second half
+*/
+import java.util.*;
+public class Solution {
+    private HashMap<Character, Character> map;
+    
+    private void initializeMap() {
+        map = new HashMap<>();
+        map.put('0', '0');
+        map.put('1', '1');
+        map.put('6', '9');
+        map.put('8', '8');
+        map.put('9', '6');
+    }
+    
+    private void print(List<String> result) {
+        for (int i = 0; i < result.size(); i++) {
+            System.out.println(result.get(i));
+        }
+    }
+    
+    private List<String> addFirstHalf(List<String> result, int length) {
+        if (length == 0) {
+            return result;
+        }
+        List<String> newResult = new ArrayList<>();
+        for (int i = 0; i < result.size(); i++) {
+            if (length > 1) { // the last digit cannot be 0
+                newResult.add(result.get(i) + "0");
+            }
+            newResult.add(result.get(i) + "1");
+            newResult.add(result.get(i) + "6");
+            newResult.add(result.get(i) + "8");
+            newResult.add(result.get(i) + "9");
+        }
+        return addFirstHalf(newResult, length - 1);
+    }
+    
+    private List<String> reverseList(List<String> result) {
+        List<String> newResult = new ArrayList<>();
+        for (int i = 0; i < result.size(); i++) {
+            newResult.add(new StringBuilder(result.get(i)).reverse().toString());
+        }
+        return newResult;
+    }
+    
+    private List<String> addMiddle(List<String> result) { // middle can be 0, 1, 8, cannot be 6 or 9
+        List<String> newResult = new ArrayList<>();
+        for (int i = 0; i < result.size(); i++) {
+            newResult.add(result.get(i) + "0");
+            newResult.add(result.get(i) + "1");
+            newResult.add(result.get(i) + "8");
+        }
+        return newResult;
+    }
+    
+    private List<String> addSecondHalf(List<String> result, boolean ignoreMiddle) {
+        List<String> newResult = new ArrayList<>();
+        for (int i = 0; i < result.size(); i++) {
+            String curString = result.get(i);
+            StringBuilder sb = new StringBuilder(curString);
+            if (ignoreMiddle) {
+                for (int j = curString.length() - 2; j > -1; j--) {
+                    sb.append(map.get(curString.charAt(j)));
+                }
+            } else {
+                for (int j = curString.length() - 1; j > -1; j--) {
+                    sb.append(map.get(curString.charAt(j)));
+                }
+            }
+            newResult.add(sb.toString());
+        }
+        return newResult;
+    }
+    
+    public List<String> findStrobogrammatic(int n) {
+        List<String> result = new ArrayList<>();
+        if (n == 0) {
+            return result;
+        }
+        result.add("");
+        initializeMap();
+        result = addFirstHalf(result, n / 2);
+        result = reverseList(result);
+        if (n % 2 == 1) {
+            result = addMiddle(result);
+            result = addSecondHalf(result, true);
+        } else {
+            result = addSecondHalf(result, false);
+        }
+        return result;
+    }
+}
