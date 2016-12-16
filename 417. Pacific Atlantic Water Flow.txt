@@ -1,0 +1,72 @@
+/*
+algorithm: bfs - for each node, do a bfs
+*/
+import java.util.*;
+public class Solution {
+    private int numRows;
+    private int numCols;
+    
+    private boolean checkValid(int[][] matrix, int row, int col) {
+        boolean[][] visited = new boolean[numRows][numCols];
+        boolean flowPacific = false;
+        boolean flowAtlantic = false;
+        Queue<Integer> queue = new LinkedList<>();
+        queue.offer(row * numCols + col);
+        visited[row][col] = true;
+        while (queue.peek() != null) {
+            int curPoint = queue.poll();
+            int curRow = curPoint / numCols;
+            int curCol = curPoint % numCols;
+            if (curRow == 0 || curCol == 0) {
+                flowPacific = true;
+            }
+            if (curRow == numRows - 1 || curCol == numCols - 1) {
+                flowAtlantic = true;
+            }
+            if (flowPacific == true && flowAtlantic == true) {
+                return true;
+            }
+            if (curRow != 0 && visited[curRow - 1][curCol] == false && matrix[curRow - 1][curCol] <= matrix[curRow][curCol]) {
+                queue.offer((curRow - 1) * numCols + curCol);
+                visited[curRow - 1][curCol] = true;
+            }
+            if (curRow != numRows - 1 && visited[curRow + 1][curCol] == false && matrix[curRow + 1][curCol] <= matrix[curRow][curCol]) {
+                queue.offer((curRow + 1) * numCols + curCol);
+                visited[curRow + 1][curCol] = true;
+            }
+            if (curCol != 0 && visited[curRow][curCol - 1] == false && matrix[curRow][curCol - 1] <= matrix[curRow][curCol]) {
+                queue.offer(curRow * numCols + curCol - 1);
+                visited[curRow][curCol - 1] = true;
+            }
+            if (curCol != numCols - 1 && visited[curRow][curCol + 1] == false && matrix[curRow][curCol + 1] <= matrix[curRow][curCol]) {
+                queue.offer(curRow * numCols + curCol + 1);
+                visited[curRow][curCol + 1] = true;
+            }
+        }
+        return false;
+    }
+    
+    public List<int[]> pacificAtlantic(int[][] matrix) {
+        List<int[]> results = new ArrayList<>();
+        if (matrix == null || matrix.length == 0) {
+            return results;
+        }
+        numRows = matrix.length;
+        if (matrix[0].length == 0) {
+            return results;
+        }
+        numCols = matrix[0].length;
+        for (int curRow = 0; curRow < numRows; curRow++) {
+            for (int curCol = 0; curCol < numCols; curCol++) {
+                boolean isValid = checkValid(matrix, curRow, curCol);
+                if (isValid) {
+                    int[] curResult = new int[2];
+                    curResult[0] = curRow;
+                    curResult[1] = curCol;
+                    results.add(curResult);
+                }
+            }
+        }
+        return results;
+    }
+}
