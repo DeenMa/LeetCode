@@ -1,0 +1,33 @@
+import java.util.*;
+public class Logger {
+    private HashMap<String, Integer> map; // this stores the pair of message and last printed time - note: if a message appears but not printed, the appear time will not be added into the hashmap
+    private static final int PRINT_INTERVAL = 10;
+    
+    /** Initialize your data structure here. */
+    public Logger() {
+        map = new HashMap<>();
+    }
+    
+    /** Returns true if the message should be printed in the given timestamp, otherwise returns false.
+        If this method returns false, the message will not be printed.
+        The timestamp is in seconds granularity. */
+    public boolean shouldPrintMessage(int timestamp, String message) {
+        if (!map.containsKey(message)) {
+            map.put(message, timestamp);
+            return true;
+        }
+        int lastPrintedTime = map.get(message);
+        boolean shouldPrint = false;
+        if (timestamp - lastPrintedTime > PRINT_INTERVAL - 1) {
+            shouldPrint = true;
+            map.put(message, timestamp);
+        }
+        return shouldPrint;
+    }
+}
+
+/**
+ * Your Logger object will be instantiated and called as such:
+ * Logger obj = new Logger();
+ * boolean param_1 = obj.shouldPrintMessage(timestamp,message);
+ */
