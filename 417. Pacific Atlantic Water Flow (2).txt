@@ -1,0 +1,117 @@
+import java.util.*;
+public class Solution {
+    private int numRows;
+    private int numCols;
+    
+    private void addCurrentResult(List<int[]> results, int row, int col) {
+        int[] result = new int[2];
+        result[0] = row;
+        result[1] = col;
+        results.add(result);
+    }
+    
+    private void updatePoints(List<int[]> results, Queue<Integer> queue, boolean[][] visited, int[][] matrix) {
+        while (queue.peek() != null) { // note that we may combine this function with the one in the getAtlanticPoints, let's go and see ...
+            int curPoint = queue.poll();
+            int curRow = curPoint / numCols;
+            int curCol = curPoint % numCols;
+            if (curRow != 0 && visited[curRow - 1][curCol] == false && matrix[curRow - 1][curCol] >= matrix[curRow][curCol]) {
+                queue.offer((curRow - 1) * numCols + curCol);
+                visited[curRow - 1][curCol] = true;
+                addCurrentResult(results, curRow - 1, curCol);
+            }
+            if (curRow != numRows - 1 && visited[curRow + 1][curCol] == false && matrix[curRow + 1][curCol] >= matrix[curRow][curCol]) {
+                queue.offer((curRow + 1) * numCols + curCol);
+                visited[curRow + 1][curCol] = true;
+                addCurrentResult(results, curRow + 1, curCol);
+            }
+            if (curCol != 0 && visited[curRow][curCol - 1] == false && matrix[curRow][curCol - 1] >= matrix[curRow][curCol]) {
+                queue.offer(curRow * numCols + curCol - 1);
+                visited[curRow][curCol - 1] = true;
+                addCurrentResult(results, curRow, curCol - 1);
+            }
+            if (curCol != numCols - 1 && visited[curRow][curCol + 1] == false && matrix[curRow][curCol + 1] >= matrix[curRow][curCol]) {
+                queue.offer(curRow * numCols + curCol + 1);
+                visited[curRow][curCol + 1] = true;
+                addCurrentResult(results, curRow, curCol + 1);
+            }
+        }
+    }
+    
+    private List<int[]> getAtlanticPoints(int[][] matrix) {
+        List<int[]> results = new ArrayList<>();
+        Queue<Integer> queue = new LinkedList<>();
+        boolean[][] visited = new boolean[numRows][numCols];
+        for (int curRow = 0; curRow < numRows; curRow++) {
+            queue.offer(curRow * numCols + numCols - 1);
+            visited[curRow][numCols - 1] = true;
+            addCurrentResult(results, curRow, numCols - 1);
+        }
+        for (int curCol = 0; curCol < numCols - 1; curCol++) {
+            queue.offer((numRows - 1) * numCols + curCol);
+            visited[numRows - 1][curCol] = true;
+            addCurrentResult(results, numRows - 1, curCol);
+        }
+        updatePoints(results, queue, visited, matrix);
+        return results;
+    }
+    
+    private List<int[]> getPacificPoints(int[][] matrix) {
+        List<int[]> results = new ArrayList<>();
+        Queue<Integer> queue = new LinkedList<>();
+        boolean[][] visited = new boolean[numRows][numCols];
+        for (int curRow = 0; curRow < numRows; curRow++) {
+            queue.offer(curRow * numCols);
+            visited[curRow][0] = true;
+            addCurrentResult(results, curRow, 0);
+        }
+        for (int curCol = 1; curCol < numCols; curCol++) {
+            queue.offer(curCol);
+            visited[0][curCol] = true;
+            addCurrentResult(results, 0, curCol);
+        }
+        updatePoints(results, queue, visited, matrix);
+        return results;
+    }
+    
+    private List<int[]> intersection(List<int[]> resultsPacific, List<int[]> resultsAtlantic) {
+        HashSet<Integer> set = new HashSet<>();
+        for (int[] curResultPacific : resultsPacific) {
+            Integer curPoint = curResultPacific[0] * numCols + curResultPacific[1];
+            set.add(curPoint);
+        }
+        List<int[]> results = new ArrayList<>();
+        for (int[] curResultAtlantic : resultsAtlantic) {
+            Integer curPoint = curResultAtlantic[0] * numCols + curResultAtlantic[1];
+            if (set.contains(curPoint)) {
+                results.add(curResultAtlantic);
+            }
+        }
+        return results;
+    }
+    
+    private void print(List<int[]> results) {
+        for (int[] result : results) {
+            System.out.println(result[0] + " " + result[1]);
+        }
+    }
+    
+    public List<int[]> pacificAtlantic(int[][] matrix) {
+        List<int[]> results = new ArrayList<>();
+        if (matrix == null || matrix.length == 0) {
+            return results;
+        }
+        numRows = matrix.length;
+        if (matrix[0].length == 0) {
+            return results;
+        }
+        numCols = matrix[0].length;
+        List<int[]> resultsPacific = getPacificPoints(matrix);
+        System.out.println("pacific");
+        print(resultsPacific);
+        List<int[]> resultsAtlantic = getAtlanticPoints(matrix);
+        System.out.println("atlantic");
+        print(resultsAtlantic);
+        return intersection(resultsPacific, resultsAtlantic);
+    }
+}
