@@ -1,0 +1,100 @@
+    public static class RandomizedSet {
+        private Integer[] data;
+        private boolean[] visited;
+        private int sizeVisited;
+        // if needed, add sizeData
+
+        /** Initialize your data structure here. */
+        public RandomizedSet() { // this is only the initial memory allocation, we may need to expand our arrays in the future 
+            data = new Integer[16];
+            visited = new boolean[16];
+            sizeVisited = 0;
+        }
+
+        private int hashAlgorithm(int value, int length) {
+            int result = value % length;
+            if (result < 0) {
+                result += length;
+            }
+            return result;
+        }
+
+        private boolean insert(int value, Integer[] data, boolean[] visited) {
+            int proposedIndex = hashAlgorithm(value, data.length);
+            int curIndex = proposedIndex;
+            Integer firstAvailableSlot = null;
+            /* if current position is visited but null, make it firstAvailableSlot but keep on searching. if found a duplicate, return false
+            but if current position is both unvisited and null, then this place can be inserted (if it is still null) and return true
+            */
+            do {
+                if (visited[curIndex] == false) {
+                    if (data[curIndex] != null) { // normally this won't happen, but throw an exception in case
+                        throw new RuntimeException("insert: unvisited but have value inside");
+                    }
+                    if (firstAvailableSlot == null) {
+                        firstAvailableSlot = curIndex;
+                        sizeVisited++;
+                    } 
+                    data[firstAvailableSlot] = value;
+                    visited[firstAvailableSlot] = true;
+                    return true;
+                } else {
+                    if (data[curIndex] == null && firstAvailableSlot == null) {
+                        firstAvailableSlot = curIndex;
+                    } else if (data[curIndex] == value) {
+                        return false;
+                    }
+                }
+                curIndex = (curIndex + 1) % data.length;
+            } while (curIndex != proposedIndex);
+            return false; // normally this won't happen, function should be returned inside the while loop
+        }
+
+        private void expandArrays() {
+            Integer[] newData = new Integer[data.length * 2];
+            boolean[] newVisited = new boolean[data.length * 2];
+            sizeVisited = 0;
+            for (int i = 0; i < data.length; i++) {
+                if (data[i] != null) {
+                    insert(data[i], newData, newVisited);
+                }
+            }
+            this.data = newData;
+            this.visited = newVisited;
+        }
+
+        /** Inserts a value to the set. Returns true if the set did not already contain the specified element. */
+        public boolean insert(int val) {
+            if (sizeVisited == data.length / 2) {
+                expandArrays();
+            }
+            return insert(val, data, visited);
+        }
+
+        /** Removes a value from the set. Returns true if the set contained the specified element. */
+        public boolean remove(int val) { // we don't change sizeVisited at remove function
+            int proposedIndex = hashAlgorithm(val, data.length);
+            int curIndex = proposedIndex;
+            do {
+                if (data[curIndex] != null && data[curIndex] == val) {
+                    data[curIndex] = null;
+                    return true;
+                }
+                curIndex = (curIndex + 1) % data.length;
+            } while (curIndex != proposedIndex && visited[curIndex] == true);
+            return false; // cannot find the target when reached first unvisited index
+        }
+
+        /** Get a random element from the set. */
+        public int getRandom() {
+            int proposedIndex = (int) (Math.random() * (double) data.length);
+            int curIndex = proposedIndex;
+            do {
+                if (data[curIndex] != null) {
+                    return data[curIndex];
+                }
+                curIndex = (curIndex + 1) % data.length;
+            } while (curIndex != proposedIndex);
+            return 0; // there is no data in the set
+        }
+    }
