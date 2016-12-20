@@ -1,0 +1,51 @@
+import java.util.*;
+public class Solution {
+    private int[] getCurrentDigits(int value, int length) {
+        int[] result = new int[length];
+        int curIndex = length - 1;
+        while (value != 0) {
+            result[curIndex] = value & 1;
+            value = value >> 1;
+            curIndex--;
+        }
+        return result;
+    }
+    
+    // if 0 then it is a char, if 1 then it is a number - note we need to merge all the 1s to get one number for that segment
+    private String getCurrentAbbreviation(String word, int[] data) {
+        int curDigit = 0;
+        StringBuilder sb = new StringBuilder();
+        int start = 0;
+        int end = 0;
+        while (curDigit < data.length) {
+            if (data[curDigit] == 1) {
+                if (curDigit == 0 || data[curDigit - 1] == 0) {
+                    start = curDigit;
+                }
+                if (curDigit == data.length - 1 || data[curDigit + 1] == 0) {
+                    end = curDigit;
+                    int curLength = end - start + 1;
+                    sb.append(curLength);
+                }
+            } else {
+                sb.append(word.charAt(curDigit));
+            }
+            curDigit++;
+        }
+        return sb.toString();
+    }
+    
+    public List<String> generateAbbreviations(String word) {
+        List<String> result = new ArrayList<>();
+        if (word == null || word.length() > 31) { // we don't deal with words longer than 31 - 2^31 is the max of positive integer
+            return result;
+        }
+        int possibilities = (int) Math.pow((double) 2, (double) word.length());
+        for (int curPossibility = 0; curPossibility < possibilities; curPossibility++) {
+            int[] curDigits = getCurrentDigits(curPossibility, word.length());
+            String curAbbreviation = getCurrentAbbreviation(word, curDigits);
+            result.add(curAbbreviation);
+        }
+        return result;
+    }
+}
