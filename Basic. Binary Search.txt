@@ -1,4 +1,4 @@
-    private int binarySearchUtil(int[] nums, int start, int end, int target) {
+    private int binarySearchRecursive(int[] nums, int start, int end, int target) {
         if (start == end) {
             return nums[start] == target? start : -1;
         }
@@ -16,14 +16,43 @@
             return middle;
         }
         if (nums[middle] > target) {
-            return binarySearchUtil(nums, start, middle - 1, target);
+            return binarySearchRecursive(nums, start, middle - 1, target);
         }
-        return binarySearchUtil(nums, middle + 1, end, target);
+        return binarySearchRecursive(nums, middle + 1, end, target);
+    }
+    
+    private int binarySearchIterative(int[] nums, int target) {
+        int start = 0;
+        int end = nums.length - 1;
+        while (start <= end) {
+            if (start == end) {
+                return nums[start] == target? start : -1;
+            }
+            if (start == end - 1) {
+                if (nums[start] == target) {
+                    return target;
+                }
+                if (nums[end] == target) {
+                    return end;
+                }
+                return -1;
+            }
+            int middle = (start + end) / 2;
+            if (target < nums[middle]) {
+                end = middle;
+            } else if (target > nums[middle]) {
+                start = middle;
+            } else {
+                return middle;
+            }
+        }
+        return -1; // normally it won't reach here
     }
     
     private int binarySearch(int[] nums, int target) {
         if (nums == null || nums.length == 0) {
             return -1;
         }
-        return binarySearchUtil(nums, 0, nums.length - 1, target);
+        // return binarySearchRecursive(nums, 0, nums.length - 1, target);
+        return binarySearchIterative(nums, target);
     }
