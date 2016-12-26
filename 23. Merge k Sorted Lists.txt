@@ -1,0 +1,59 @@
+/*
+brute force: o(nm), check the start of each lists, and record the pointer position - until all list nodes get done
+(maybe) a better way: construct a heap - the heap stores the current node of each list, the head of the priority queue is always the node has the smallest value
+everytime we want to insert a new node, remove the node on the head of the heap, add the node to the result list, then put the cut-head list back to the heap
+repeat this until there is no elements in the heap
+*/
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) { val = x; }
+ * }
+ */
+import java.util.*;
+public class Solution {
+    PriorityQueue<ListNode> heap = new PriorityQueue<>();
+    
+    private class ListComparator implements Comparator<ListNode> {
+        public int compare(ListNode l1, ListNode l2) {
+            return l1.val - l2.val;
+        }
+    }
+    
+    private void putListsIntoHeap(ListNode[] lists) {
+        Comparator<ListNode> listComparator = new ListComparator();
+        heap = new PriorityQueue<>(lists.length, listComparator);
+        for (int i = 0; i < lists.length; i++) {
+            if (lists[i] == null) {
+                continue;
+            }
+            heap.offer(lists[i]);
+        }
+    }
+    
+    private void mergeListNodes(ListNode start) {
+        ListNode preNode = start;
+        ListNode curNode = null;
+        while (heap.size() != 0) {
+            curNode = heap.poll();
+            ListNode nxtNode = curNode.next; // note that this nxtNode is actually the next node in that single ListNode, not something related to merged list
+            preNode.next = curNode;
+            if (nxtNode != null) {
+                heap.offer(nxtNode);
+            }
+            preNode = curNode;
+        }
+    }
+    
+    public ListNode mergeKLists(ListNode[] lists) {
+        if (lists == null || lists.length == 0) {
+            return null;
+        }
+        putListsIntoHeap(lists);
+        ListNode dummyHead = new ListNode(-1);
+        mergeListNodes(dummyHead);
+        return dummyHead.next;
+    }
+}
