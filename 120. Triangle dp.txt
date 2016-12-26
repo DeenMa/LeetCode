@@ -1,0 +1,31 @@
+import java.util.*;
+public class Solution {
+    private List<Integer> minimumTotal(List<List<Integer>> triangle, int curLayer) {
+        if (curLayer == 0) {
+            List<Integer> firstResult = new ArrayList<>();
+            firstResult.add(triangle.get(curLayer).get(0));
+            return firstResult;
+        }
+        
+        List<Integer> preResult = minimumTotal(triangle, curLayer - 1);
+        List<Integer> curResult = new ArrayList<>();
+        int index = 0;
+        curResult.add(preResult.get(index) + triangle.get(curLayer).get(0)); // first one
+        index++;
+        for (int i = 0; i < preResult.size() - 1; i++) {
+            curResult.add(Math.min(preResult.get(i), preResult.get(i + 1)) + triangle.get(curLayer).get(index));
+            index++;
+        }
+        curResult.add(preResult.get(preResult.size() - 1) + triangle.get(curLayer).get(index));
+        return curResult;
+    }
+    
+    public int minimumTotal(List<List<Integer>> triangle) {
+        List<Integer> sums = minimumTotal(triangle, triangle.size() - 1);
+        int result = Integer.MAX_VALUE;
+        for (int i = 0; i < sums.size(); i++) {
+            result = Math.min(result, sums.get(i));
+        }
+        return result;
+    }
+}
