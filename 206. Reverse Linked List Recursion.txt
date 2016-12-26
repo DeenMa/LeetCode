@@ -1,0 +1,21 @@
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) { val = x; }
+ * }
+ */
+public class Solution {
+    public ListNode reverseList(ListNode head) {
+        if (head == null || head.next == null) {
+            return head;
+        }
+        
+        ListNode second = head.next; // the main part is here, we not only need to store the head after reversed, but also needs to store the "second" node so that it can points to the original head after reverse
+        head.next = null;
+        ListNode reverseHead = reverseList(second);
+        second.next = head;
+        return reverseHead;
+    }
+}
