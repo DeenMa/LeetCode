@@ -1,0 +1,36 @@
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) { val = x; }
+ * }
+ */
+import java.util.*;
+public class Solution {
+    public ListNode deleteDuplicates(ListNode head) {
+        if (head == null) {
+            return head;
+        }
+        ListNode dummy = null;
+        if (head.val == Integer.MIN_VALUE) {
+            dummy = new ListNode(head.val + 1);
+        } else {
+            dummy = new ListNode(head.val - 1);
+        }
+        dummy.next = head;
+        ListNode cur = dummy; // cur points at the point which is certain to exist
+        while (cur.next != null && cur.next.next != null) {
+            if (cur.next.val == cur.next.next.val) {
+                ListNode nxt = cur.next;
+                while (nxt.next != null && nxt.val == nxt.next.val) { // remove all the nodes have the same value until reach a new one or end
+                    nxt = nxt.next;
+                }
+                cur.next = nxt.next;
+            } else {
+                cur = cur.next;
+            }
+        }
+        return dummy.next;
+    }
+}
