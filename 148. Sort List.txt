@@ -1,0 +1,58 @@
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) { val = x; }
+ * }
+ */
+// algorithm: using quick sort
+import java.util.*;
+public class Solution {
+    public ListNode sortList(ListNode head) {
+        if (head == null || head.next == null) {
+            return head;
+        }
+        ListNode fast = head.next; // get the half position
+        ListNode slow = head;
+        while (fast != null) {
+            fast = fast.next;
+            if (fast != null) {
+                fast = fast.next;
+            } else {
+                break;
+            }
+            slow = slow.next;
+        }
+        ListNode left = head;
+        ListNode right = slow.next;
+        slow.next = null;
+        
+        // divide
+        ListNode leftSorted = sortList(left);
+        ListNode rightSorted = sortList(right);
+        
+        // conquer
+        ListNode dummy = new ListNode(Integer.MIN_VALUE);
+        ListNode cur = dummy;
+        ListNode curLeft = leftSorted;
+        ListNode curRight = rightSorted;
+        
+        while (curLeft != null && curRight != null) {
+            if (curLeft.val < curRight.val) {
+                cur.next = curLeft;
+                curLeft = curLeft.next;
+            } else {
+                cur.next = curRight;
+                curRight = curRight.next;
+            }
+            cur = cur.next;
+        }
+        if (curLeft == null) {
+            cur.next = curRight;
+        } else {
+            cur.next = curLeft;
+        }
+        return dummy.next;    
+    }
+}
