@@ -1,0 +1,28 @@
+import java.util.*;
+public class Solution {
+    public int minPathSum(int[][] grid) {
+        if (grid == null || grid.length == 0) {
+            return 0;
+        } 
+        int numRows = grid.length;
+        if (grid[0].length == 0) {
+            return 0;
+        }
+        int numCols = grid[0].length;
+        int[][] dp = new int[numRows][numCols];
+        for (int curRow = 0; curRow < numRows; curRow++) {
+            for (int curCol = 0; curCol < numCols; curCol++) {
+                if (curRow == 0 && curCol == 0) {
+                    dp[curRow][curCol] = grid[curRow][curCol];
+                } else if (curRow == 0) {
+                    dp[curRow][curCol] = dp[curRow][curCol - 1] + grid[curRow][curCol];
+                } else if (curCol == 0) {
+                    dp[curRow][curCol] = dp[curRow - 1][curCol] + grid[curRow][curCol];
+                } else {
+                    dp[curRow][curCol] = Math.min(dp[curRow - 1][curCol], dp[curRow][curCol - 1]) + grid[curRow][curCol];
+                }
+            }
+        }
+        return dp[numRows - 1][numCols - 1];
+    }
+}
