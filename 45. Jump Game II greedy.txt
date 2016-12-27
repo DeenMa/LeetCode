@@ -1,0 +1,27 @@
+// greedy
+import java.util.*;
+public class Solution {
+    public int jump(int[] nums) {
+        if (nums == null || nums.length < 2) {
+            return 0;
+        }
+        int step = 0;
+        int current = 0;
+        while (current < nums.length - 1) { // 0
+            if (current + nums[current] >= nums.length - 1) { // one more step will reach the end
+                return step + 1;
+            }
+            int next = current;
+            int possibleMax = current; // 0
+            for (int possibleNext = current + 1; possibleNext <= current + nums[current]; possibleNext++) {
+                if (possibleNext + nums[possibleNext] > possibleMax) {
+                    possibleMax = possibleNext + nums[possibleNext];
+                    next = possibleNext;
+                }
+            }
+            current = next; // 2
+            step++; // 1
+        }
+        return step; // cannot reach, normally won't reach here
+    }
+}
