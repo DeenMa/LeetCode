@@ -1,0 +1,22 @@
+// o(n^2) dp: dp[i] means the min to jump to this index
+public class Solution {
+    public int jump(int[] nums) {
+        if (nums == null || nums.length < 2) {
+            return 0;
+        }
+        int[] dp = new int[nums.length];
+        dp[0] = 0;
+        for (int i = 1; i < nums.length; i++) {
+            int min = Integer.MAX_VALUE;
+            for (int j = 0; j < i; j++) {
+                if (j + nums[j] >= i) {
+                    if (dp[j] + 1 < min) {
+                        min = dp[j] + 1;
+                    }
+                }
+            }
+            dp[i] = min;
+        }
+        return dp[nums.length - 1];
+    }
+}
