@@ -1,0 +1,40 @@
+/*
+algorithm: dp
+reason not back-tracing: back-tracing usually applies to the case when all the possibilities need to be listed
+but here, especially if we are returning minimum or maximum of something while cannot swap / edit the chars in the string, it should be dp
+dp[i]: min cut if the string ends in i
+dp[i] = (for all j < i) if isPalindrome(j + 1, i), dp[j] + 1, then find minimum dp[j] + 1
+*/
+import java.util.*;
+public class Solution {
+    private boolean isPalindrome(String s) {
+        int i = 0;
+        int j = s.length() - 1;
+        while (i <= j) {
+            if (s.charAt(i) != s.charAt(j)) {
+                return false;
+            }
+            i++;
+            j--;
+        }
+        return true;
+    }
+    
+    public int minCut(String s) {
+        if (s == null || s.length() < 2) {
+            return 0;
+        }
+        int[] dp = new int[s.length() + 1];
+        dp[0] = -1;
+        for (int i = 1; i < s.length() + 1; i++) {
+            int curMin = Integer.MAX_VALUE;
+            for (int j = 0; j < i; j++) { // note that dp[j] shall always be analyzed
+                if (isPalindrome(s.substring(j, i))) {
+                    curMin = Math.min(curMin, dp[j] + 1);
+                }
+            }
+            dp[i] = curMin;
+        }
+        return dp[s.length()];
+    }
+}
