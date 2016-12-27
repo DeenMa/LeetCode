@@ -1,0 +1,42 @@
+/*
+algorithm: using traversal
+*/
+import java.util.*;
+public class Solution {
+    private boolean isPalindrome(String s, int start, int end) {
+        int i = start;
+        int j = end - 1;
+        while (i <= j) {
+            if (s.charAt(i) != s.charAt(j)) {
+                return false;
+            }
+            i++;
+            j--;
+        }
+        return true;
+    }
+    
+    private void partitionUtil(List<List<String>> results, List<String> curResult, String s, int startIndex) {
+        if (startIndex == s.length()) {
+            results.add(curResult);
+            return;
+        }
+        for (int i = startIndex; i < s.length(); i++) {
+            if (isPalindrome(s, startIndex, i + 1)) {
+                List<String> newResult = new ArrayList<>(curResult);
+                newResult.add(s.substring(startIndex, i + 1));
+                partitionUtil(results, newResult, s, i + 1);
+            }
+        }
+    }
+    
+    public List<List<String>> partition(String s) {
+        List<List<String>> results = new ArrayList<>();
+        if (s == null || s.length() == 0) {
+            return results;
+        }
+        List<String> curResult = new ArrayList<>();
+        partitionUtil(results, curResult, s, 0);
+        return results;
+    }
+}
