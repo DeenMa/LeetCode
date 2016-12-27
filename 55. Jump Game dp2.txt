@@ -1,0 +1,23 @@
+public class Solution {
+    public boolean canJump(int[] nums) {
+        if (nums == null || nums.length < 2) {
+            return true;
+        }
+        int curMax = 0;
+        int[] dp = new int[nums.length]; // record the max index current one can go
+        for (int i = 0; i < nums.length; i++) {
+            if (i > curMax) { // no previous indexes can jump to this node
+                return false;
+            }
+            int curJump = i + nums[i];
+            if (curJump >= nums.length - 1) {
+                return true;
+            }
+            dp[i] = curJump;
+            if (curJump > curMax) {
+                curMax = curJump;
+            }
+        }
+        return false;
+    }
+}
