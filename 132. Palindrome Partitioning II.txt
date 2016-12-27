@@ -1,0 +1,55 @@
+/*
+algorithm: dp
+reason not back-tracing: back-tracing usually applies to the case when all the possibilities need to be listed
+but here, especially if we are returning minimum or maximum of something while cannot swap / edit the chars in the string, it should be dp
+dp[i]: min cut if the string ends in i
+dp[i] = (for all j < i) if isPalindrome(j + 1, i), dp[j] + 1, then find minimum dp[j] + 1
+*/
+import java.util.*;
+public class Solution {
+    private void getCurrentPalindrome(boolean[][] result, String s, int middleIndex, boolean halfShift) { // 2,f
+        int left = middleIndex; // 2
+        int right = (halfShift ? (middleIndex + 1) : middleIndex); // 2
+        while (left > -1 && right < s.length()) {
+            if (s.charAt(left) != s.charAt(right)) {
+                break;
+            }
+            result[left][right] = true; // 0,0 true; 0,1 true; 1,1 true; 0,2 false; 1,2 false; 2,2 true
+            left--;
+            right++;
+        }
+    }
+    
+    private boolean[][] getPalindrome(String s) {
+        boolean[][] result = new boolean[s.length()][s.length()];
+        int middleIndex = 0;
+        boolean halfShift = false;
+        while (middleIndex != s.length() - 1 || halfShift != true) { // we iterate until middleIndex reached last and halfShift is false
+            getCurrentPalindrome(result, s, middleIndex, halfShift);
+            halfShift = !halfShift;
+            if (halfShift == false) {
+                middleIndex++;
+            }
+        }
+        return result;
+    }
+
+    public int minCut(String s) {
+        if (s == null || s.length() < 2) {
+            return 0;
+        }
+        boolean[][] matrixPalindrome = getPalindrome(s); // 0,0 true; 0,1 true; 1,1 true; 2,2 true
+        int[] dp = new int[s.length() + 1];
+        dp[0] = -1; // dp: -1, 0, 0, 0
+        for (int i = 1; i < s.length() + 1; i++) { // 3
+            int curMin = Integer.MAX_VALUE;
+            for (int j = 0; j < i; j++) { // note that dp[j] shall always be analyzed, 1
+                if (matrixPalindrome[j][i - 1]) { // 1,2 false
+                    curMin = Math.min(curMin, dp[j] + 1);
+                }
+            }
+            dp[i] = curMin; // dp: -1, 0, 0,
+        }
+        return dp[s.length()];
+    }
+}
