@@ -1,0 +1,36 @@
+import java.util.*;
+public class Solution {
+    private List<Integer> getList(int[] nums) {
+        List<Integer> result = new ArrayList<>();
+        for (int i = 0; i < nums.length; i++) {
+            result.add(nums[i]);
+        }
+        return result;
+    }
+    
+    private void getPermutation(List<List<Integer>> results, List<Integer> curResult, List<Integer> curRemain) {
+        if (curRemain.size() == 0) {
+            results.add(curResult);
+            return;
+        }
+        
+        for (int i = 0; i < curRemain.size(); i++) {
+            List<Integer> newResult = new ArrayList<>(curResult);
+            newResult.add(curRemain.get(i));
+            List<Integer> newRemain = new ArrayList<>(curRemain);
+            newRemain.remove(i);
+            getPermutation(results, newResult, newRemain);
+        }
+    }
+    
+    public List<List<Integer>> permute(int[] nums) {
+        List<List<Integer>> results = new ArrayList<>();
+        if (nums == null || nums.length == 0) {
+            return results;
+        }
+        List<Integer> numsList = getList(nums);
+        List<Integer> curResult = new ArrayList<>();
+        getPermutation(results, curResult, numsList);
+        return results;
+    }
+}
