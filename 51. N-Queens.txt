@@ -1,0 +1,58 @@
+/*
+rule: all queens - cannot be in the same row, same col and diagonal
+algorithm: backtracing, everytime we analyze a new string, we do an analysis to get which columns cannot the queen be placed with - based on former placements
+*/
+import java.util.*;
+public class Solution {
+    private List<String> generateBoard(List<Integer> placement, int n) {
+        List<String> result = new ArrayList<>();
+        for (int curRow = 0; curRow < placement.size(); curRow++) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < placement.get(curRow); i++) {
+                sb.append('.');
+            }
+            sb.append('Q');
+            for (int i = placement.get(curRow) + 1; i < n; i++) {
+                sb.append('.');
+            }
+            result.add(sb.toString());
+        }
+        return result;
+    }
+    
+    private void analyzeQueenPlacements(List<List<String>> results, List<Integer> curPlacement, int n) {
+        if (curPlacement.size() == n) {
+            results.add(generateBoard(curPlacement, n));
+            return;
+        }
+        
+        boolean[] curRow = new boolean[n]; // record the current row, if true that means placing queen on this column will result in attacking with previous queen(s)
+        for (int preRow = 0; preRow < curPlacement.size(); preRow++) {
+            int preCol = curPlacement.get(preRow);
+            curRow[preCol] = true; // avoid col attack
+            int leftDiagnal = preCol - (curPlacement.size() - preRow);
+            if (leftDiagnal > -1) {
+                curRow[leftDiagnal] = true;
+            }
+            int rightDiagnal = preCol + (curPlacement.size() - preRow);
+            if (rightDiagnal < n) {
+                curRow[rightDiagnal] = true;
+            }
+        }
+        
+        for (int curCol = 0; curCol < n; curCol++) {
+            if (curRow[curCol] == false) { // placable
+                List<Integer> newPlacement = new ArrayList<>(curPlacement);
+                newPlacement.add(curCol);
+                analyzeQueenPlacements(results, newPlacement, n);
+            }
+        }
+    }
+    
+    public List<List<String>> solveNQueens(int n) {
+        List<List<String>> results = new ArrayList<>();
+        List<Integer> curPlacement = new ArrayList<>(); // we use a list of integer to store the queen: curPlacement.get(i) = j means queen in the row i had been placed in column j - since each row can only place 1 queen this will work
+        analyzeQueenPlacements(results, curPlacement, n);
+        return results;
+    }
+}
