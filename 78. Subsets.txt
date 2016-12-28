@@ -1,0 +1,34 @@
+public class Solution {
+    private List<Integer> getCurrentChoices(List<Boolean> curChoice, int[] nums) {
+        List<Integer> result = new ArrayList<>();
+        for (int i = 0; i < curChoice.size(); i++) {
+            if (curChoice.get(i) == true) {
+                result.add(nums[i]);
+            }
+        }
+        return result;
+    }
+    
+    private void calculateSubsets(List<List<Integer>> results, List<Boolean> curChoice, int[] nums) {
+        if (curChoice.size() == nums.length) {
+            results.add(getCurrentChoices(curChoice, nums));
+            return;
+        }
+        List<Boolean> newChoiceFalse = new ArrayList<>(curChoice);
+        newChoiceFalse.add(false);
+        calculateSubsets(results, newChoiceFalse, nums);
+        List<Boolean> newChoiceTrue = new ArrayList<>(curChoice);
+        newChoiceFalse.add(true);
+        calculateSubsets(results, newChoiceTrue, nums);
+    }
+    
+    public List<List<Integer>> subsets(int[] nums) {
+        List<List<Integer>> results = new ArrayList<>();
+        if (nums == null || nums.length == 0) {
+            return results;
+        }
+        List<Boolean> curChoice = new ArrayList<>();
+        calculateSubsets(results, curChoice, nums);
+        return results;
+    }
+}
