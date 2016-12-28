@@ -1,0 +1,56 @@
+/**
+ * Definition for undirected graph.
+ * class UndirectedGraphNode {
+ *     int label;
+ *     List<UndirectedGraphNode> neighbors;
+ *     UndirectedGraphNode(int x) { label = x; neighbors = new ArrayList<UndirectedGraphNode>(); }
+ * };
+ */
+/*
+algorithm: bfs the graph and get all the nodes, create a new node for each old node
+create a hashmap to store the pair for old and new nodes
+finally get all the neighbors
+we assume this is a single graph
+*/
+import java.util.*;
+public class Solution {
+    public UndirectedGraphNode cloneGraph(UndirectedGraphNode node) {
+        if (node == null) {
+            return null;
+        }
+        
+        HashMap<UndirectedGraphNode, UndirectedGraphNode> map = new HashMap<>();
+        UndirectedGraphNode newNode = new UndirectedGraphNode(node.label);
+        map.put(node, newNode);
+        Queue<UndirectedGraphNode> queue = new LinkedList<>();
+        queue.offer(node); // every time we offer the node, we make new node and put the pair into map
+        
+        while (queue.peek() != null) {
+            UndirectedGraphNode curNode = queue.poll();
+            for (int curNeighborIndex = 0; curNeighborIndex < curNode.neighbors.size(); curNeighborIndex++) {
+                if (!map.containsKey(curNode.neighbors.get(curNeighborIndex))) {
+                    newNode = new UndirectedGraphNode(curNode.neighbors.get(curNeighborIndex).label);
+                    map.put(curNode.neighbors.get(curNeighborIndex), newNode);
+                    queue.offer(curNode.neighbors.get(curNeighborIndex));
+                }
+            }
+        }
+        
+        HashSet<UndirectedGraphNode> visited = new HashSet<>();
+        // get all the neighbors information for the new nodes
+        queue.clear(); // it should be empty after while-loop, clear just in case
+        queue.offer(node);
+        while (queue.peek() != null) { // another round to get all the neighbor information for the generated graph
+            UndirectedGraphNode curNode = queue.poll();
+            if (!visited.contains(curNode)) {
+                newNode = map.get(curNode);
+                for (int curNeighborIndex = 0; curNeighborIndex < curNode.neighbors.size(); curNeighborIndex++) {
+                    newNode.neighbors.add(map.get(curNode.neighbors.get(curNeighborIndex)));
+                    queue.offer(curNode.neighbors.get(curNeighborIndex));
+                }
+                visited.add(curNode);
+            }
+        }
+        return map.get(node);
+    }
+}
