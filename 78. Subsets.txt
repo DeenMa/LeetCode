@@ -1,25 +1,15 @@
 public class Solution {
-    private List<Integer> getCurrentChoices(List<Boolean> curChoice, int[] nums) {
-        List<Integer> result = new ArrayList<>();
-        for (int i = 0; i < curChoice.size(); i++) {
-            if (curChoice.get(i) == true) {
-                result.add(nums[i]);
-            }
-        }
-        return result;
-    }
-    
-    private void calculateSubsets(List<List<Integer>> results, List<Boolean> curChoice, int[] nums) {
-        if (curChoice.size() == nums.length) {
-            results.add(getCurrentChoices(curChoice, nums));
+    private void calculateSubsets(List<List<Integer>> results, List<Integer> curResult, int index, int[] nums) {
+        if (index == nums.length) {
+            results.add(curResult);
             return;
         }
-        List<Boolean> newChoiceFalse = new ArrayList<>(curChoice);
-        newChoiceFalse.add(false);
-        calculateSubsets(results, newChoiceFalse, nums);
-        List<Boolean> newChoiceTrue = new ArrayList<>(curChoice);
-        newChoiceFalse.add(true);
-        calculateSubsets(results, newChoiceTrue, nums);
+        
+        List<Integer> newResultAdd = new ArrayList<>(curResult);
+        newResultAdd.add(nums[index]);
+        calculateSubsets(results, newResultAdd, index + 1, nums);
+        List<Integer> newResultRemain = new ArrayList<>(curResult);
+        calculateSubsets(results, newResultRemain, index + 1, nums);
     }
     
     public List<List<Integer>> subsets(int[] nums) {
@@ -27,8 +17,9 @@ public class Solution {
         if (nums == null || nums.length == 0) {
             return results;
         }
-        List<Boolean> curChoice = new ArrayList<>();
-        calculateSubsets(results, curChoice, nums);
+        List<Integer> curResult = new ArrayList<>();
+        int index = 0;
+        calculateSubsets(results, curResult, 0, nums);
         return results;
     }
 }
