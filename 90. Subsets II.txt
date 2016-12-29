@@ -1,0 +1,63 @@
+public class Solution {
+    private class NumOccPair {
+        int num;
+        int occ;
+        public NumOccPair(int n, int o) {
+            num = n;
+            occ = o;
+        }
+    }
+    
+    private List<NumOccPair> generatePair(int[] nums) {
+        List<NumOccPair> results = new ArrayList<>();
+        int curNum = nums[0];
+        int curOcc = 1;
+        for (int i = 1; i < nums.length; i++) {
+            if (nums[i] == nums[i - 1]) {
+                curOcc++;
+            } else {
+                results.add(new NumOccPair(curNum, curOcc));
+                curNum = nums[i];
+                curOcc = 1;
+            }
+        }
+        results.add(new NumOccPair(curNum, curOcc)); // also need to do the last one
+        return results;
+    }
+    
+    private void generateList(List<List<Integer>> results, List<NumOccPair> curInfo) {
+        List<Integer> curResult = new ArrayList<>();
+        for (int i = 0; i < curInfo.size(); i++) {
+            for (int j = 0; j < curInfo.get(i).occ; j++) {
+                curResult.add(curInfo.get(i).num);
+            }
+        }
+        results.add(curResult);
+    }
+    
+    private void subsetsWithDupHelper(List<List<Integer>> results, List<NumOccPair> numsInfo, List<NumOccPair> curInfo) {
+        if (curInfo.size() == numsInfo.size()) {
+            generateList(results, curInfo);
+            return;
+        }
+        
+        int index = curInfo.size(); // this is the current index in numsInfo that we are analyzing
+        for (int i = 0; i <= numsInfo.get(index).occ; i++) {
+            curInfo.add(new NumOccPair(numsInfo.get(index).num, i));
+            subsetsWithDupHelper(results, numsInfo, curInfo);
+            curInfo.remove(curInfo.size() - 1);
+        }
+    }
+    
+    public List<List<Integer>> subsetsWithDup(int[] nums) {
+        List<List<Integer>> results = new ArrayList<>();
+        if (nums == null || nums.length == 0) {
+            return results;
+        }
+        Arrays.sort(nums);
+        List<NumOccPair> numsInfo = generatePair(nums);
+        List<NumOccPair> curInfo = new ArrayList<>();
+        subsetsWithDupHelper(results, numsInfo, curInfo);
+        return results;
+    }
+}
