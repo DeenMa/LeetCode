@@ -1,0 +1,66 @@
+public class Solution {
+    private class NumOccPair {
+        int num;
+        int occ;
+        public NumOccPair(int n, int o) {
+            num = n;
+            occ = o;
+        }
+    }
+    
+    private List<NumOccPair> generatePairs(int[] candidates) {
+        List<NumOccPair> pairs = new ArrayList<>();
+        int curNum = candidates[0];
+        int curOcc = 1;
+        for (int i = 1; i < candidates.length; i++) {
+            if (candidates[i] == candidates[i - 1]) {
+                curOcc++;
+            } else {
+                pairs.add(new NumOccPair(curNum, curOcc));
+                curNum = candidates[i];
+                curOcc = 1;
+            }
+        }
+        pairs.add(new NumOccPair(curNum, curOcc));
+        return pairs;
+    }
+    
+    private List<Integer> generateList(List<NumOccPair> curPair) {
+        List<Integer> result = new ArrayList<>();
+        for (int i = 0; i < curPair.size(); i++) {
+            for (int j = 0; j < curPair.get(i).occ; j++) {
+                result.add(curPair.get(i).num);
+            }
+        }
+        return result;
+    }
+    
+    private void combinationSum2Helper(List<List<Integer>> results, List<NumOccPair> pairs, List<NumOccPair> curPair, int target) {
+        if (target == 0) {
+            results.add(generateList(curPair));
+            return;
+        }
+        if (target < 0 || curPair.size() == pairs.size()) {
+            return;
+        }
+        
+        int index = curPair.size();
+        for (int i = 0; i < pairs.get(index).occ + 1; i++) {
+            curPair.add(new NumOccPair(pairs.get(index).num, i));
+            combinationSum2Helper(results, pairs, curPair, target - pairs.get(index).num * i);
+            curPair.remove(curPair.size() - 1);
+        }
+    }
+    
+    public List<List<Integer>> combinationSum2(int[] candidates, int target) {
+        List<List<Integer>> results = new ArrayList<>();
+        if (candidates == null || candidates.length == 0) {
+            return results;
+        }
+        Arrays.sort(candidates);
+        List<NumOccPair> pairs = generatePairs(candidates);
+        List<NumOccPair> curPair = new ArrayList<>();
+        combinationSum2Helper(results, pairs, curPair, target);
+        return results;
+    }
+}
