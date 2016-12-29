@@ -1,0 +1,46 @@
+/*
+algorithm: bfs, every time change a letter
+*/
+import java.util.*;
+public class Solution {
+    public int ladderLength(String beginWord, String endWord, Set<String> wordList) {
+        if (wordList.contains(beginWord)) {
+            wordList.remove(beginWord);
+        }
+        if (wordList.contains(endWord)) {
+            wordList.remove(endWord);
+        }
+        Queue<String> queue = new LinkedList<>();
+        queue.add(beginWord); // a
+        int curLayer = 1;
+        int curLayerSize = 1;
+        int nxtLayerSize = 0;
+        while (queue.peek() != null) {
+            for (int curWordIndex = 0; curWordIndex < curLayerSize; curWordIndex++) {
+                String curWord = queue.poll(); // a
+                for (int curCharIndex = 0; curCharIndex < curWord.length(); curCharIndex++) { // 0
+                    for (char curAlphabet = 'a'; curAlphabet <= 'z'; curAlphabet++) { // b
+                        if (curWord.charAt(curCharIndex) == curAlphabet) {
+                            continue;
+                        }
+                        char[] chars = curWord.toCharArray();
+                        chars[curCharIndex] = curAlphabet;
+                        String morph = new String(chars);
+                        if (morph.equals(endWord)) {
+                            return curLayer + 1;
+                        }
+                        if (wordList.contains(morph)) {
+                            wordList.remove(morph);
+                            queue.offer(morph);
+                            nxtLayerSize++;
+                        }
+                    }
+                }
+            }
+            curLayerSize = nxtLayerSize;
+            nxtLayerSize = 0;
+            curLayer++;
+        }
+        return 0;
+    }
+}
