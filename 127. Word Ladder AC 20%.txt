@@ -1,0 +1,154 @@
+/*
+include forward and backward search, they share the same visited hashset but use different queue
+once a word in one side of the queue already exists on hashset then terminate
+*/
+import java.util.*;
+public class Solution {
+    private class HashQueue { // a queue support o(1) end-insert, first-poll, and o(1) search
+        private Queue<String> queue;
+        private Set<String> set;
+        
+        public HashQueue() {
+            queue = new LinkedList<>();
+            set = new HashSet<>();
+        }
+        
+        public void offer(String word) {
+            queue.offer(word);
+            set.add(word);
+        }
+        
+        public String poll() {
+            String result = queue.poll();
+            set.remove(result);
+            return result;
+        }
+        
+        public boolean contains(String word) {
+            return set.contains(word);
+        }
+        
+        private Set<String> getSet() {
+            return set;
+        }
+    }
+    
+    private class TraversalInfo {
+        int curLayer;
+        int curSize;
+        boolean found;
+        HashQueue words;
+        
+        public TraversalInfo(int l, int s, boolean f, HashQueue w) {
+            curLayer = l;
+            curSize = s;
+            found = f;
+            words = w;
+        }
+    }
+    
+    private String replace(String original, int index, char newChar) {
+        char[] originalCharArray = original.toCharArray();
+        originalCharArray[index] = newChar;
+        return new String(originalCharArray);
+    }
+    
+    private void runCurrentSide(TraversalInfo info, Set<String> visited, Set<String> wordList) {
+        int curSize = info.curSize;
+        int nextSize = 0;
+        info.curLayer++;
+        for (int curWordIndex = 0; curWordIndex < curSize; curWordIndex++) {
+            String curWord = info.words.poll();
+            for (int curCharIndex = 0; curCharIndex < curWord.length(); curCharIndex++) {
+                for (char curAlphabet = 'a'; curAlphabet <= 'z'; curAlphabet++) {
+                    if (curWord.charAt(curCharIndex) == curAlphabet) {
+                        continue;
+                    }
+                    String morph = replace(curWord, curCharIndex, curAlphabet);
+                    
+                    if (visited.contains(morph)) { // both contains and visited, this is the first result
+                        System.out.println("intersection found! word: " + morph);
+                        info.found = true;
+                        return;
+                    }
+                    
+                    if (wordList.contains(morph)) {
+                        info.words.offer(morph);
+                        wordList.remove(morph);
+                        nextSize++;
+                    }
+                }
+            }
+        }
+        info.curSize = nextSize;
+        info.found = false;
+        
+        System.out.println("current info: layer " + info.curLayer + " size: " + info.curSize + " found: " + info.found);
+        System.out.println("all words inside: ");
+        Iterator<String> i = info.words.getSet().iterator();
+        while (i.hasNext()) {
+            System.out.println(i.next());
+        }
+    }
+    
+    private boolean isMorph(String s1, String s2) {
+        if (s1.length() != s2.length()) {
+            return false;
+        }
+        int diff = 0;
+        for (int curIndex = 0; curIndex < s1.length(); curIndex++) {
+            if (s1.charAt(curIndex) != s2.charAt(curIndex)) {
+                diff++;
+            }
+        }
+        return diff == 1;
+    }
+    
+    public int ladderLength(String beginWord, String endWord, Set<String> wordList) {
+        if (wordList == null || wordList.size() == 0 || beginWord == null || endWord == null || beginWord.length() != endWord.length()) {
+            return 0;
+        }
+        if (beginWord.equals(endWord)) {
+            return 1;
+        }
+        if (wordList.contains(beginWord)) { // remove them in order not to add noise
+            wordList.remove(beginWord);
+            System.out.println("begin word: " + beginWord + " has removed");
+        }
+        if (wordList.contains(endWord)) {
+            wordList.remove(endWord);
+            System.out.println("end word: " + endWord + " has removed");
+        }
+        if (isMorph(beginWord, endWord)) { // in this case, they don't need to go through dictionary, so remove this case to avoid wrong answer
+            return 2;
+        }
+        
+        HashQueue forward = new HashQueue();
+        forward.offer(beginWord);
+        TraversalInfo forwardInfo = new TraversalInfo(1, 1, false, forward);
+        
+        HashQueue backward = new HashQueue();
+        backward.offer(endWord);
+        TraversalInfo backwardInfo = new TraversalInfo(1, 1, false, backward);
+        
+        boolean turn = false; // determine which side is runnning, false = forward; true = backward
+        while (forwardInfo.curSize > 0 && backwardInfo.curSize > 0 && forwardInfo.found == false && backwardInfo.found == false) {
+            Set<String> visited;
+            if (!turn) {
+                System.out.println("forward");
+                visited = backwardInfo.words.getSet();
+                runCurrentSide(forwardInfo, visited, wordList);
+            } else {
+                System.out.println("backward");
+                visited = forwardInfo.words.getSet();
+                runCurrentSide(backwardInfo, visited, wordList);
+            }
+            turn = !turn;
+        }
+        if (forwardInfo.found == true || backwardInfo.found == true) {
+            int sumLayer = forwardInfo.curLayer + backwardInfo.curLayer;
+            return sumLayer - 1;
+        }
+        return 0;
+    }
+}
