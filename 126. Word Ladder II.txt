@@ -1,0 +1,124 @@
+/*
+*/
+import java.util.*;
+public class Solution {
+    private class ListSet { // an arraylist supporting o(1) search, may cause too much complexity
+        List<String> list;
+        Set<String> set;
+        
+        public ListSet() {
+            list = new ArrayList<>();
+            set = new HashSet<>();
+        }
+        
+        public ListSet(ListSet ls) {
+            list = new ArrayList<>(ls.list);
+            set = new HashSet<>(ls.set);
+        }
+        
+        public String getLastWord() {
+            return list.get(list.size() - 1);
+        }
+        
+        public List<String> getList() {
+            return list;
+        }
+        
+        public void add(String s) {
+            list.add(s);
+            set.add(s);
+        }
+        
+        public int size() {
+            return list.size();
+        }
+        
+        public boolean contains(String s) {
+            return set.contains(s);
+        }
+    }
+    
+    private boolean isMorph(String s1, String s2) {
+        if (s1.length() != s2.length()) {
+            return false;
+        }
+        int diff = 0;
+        for (int curIndex = 0; curIndex < s1.length(); curIndex++) {
+            if (s1.charAt(curIndex) != s2.charAt(curIndex)) {
+                diff++;
+            }
+        }
+        return diff == 1;
+    }
+    
+    private String replace(String original, int index, char newChar) {
+        char[] originalCharArray = original.toCharArray();
+        originalCharArray[index] = newChar;
+        return new String(originalCharArray);
+    }
+    
+    public List<List<String>> findLadders(String beginWord, String endWord, Set<String> wordList) {
+        List<List<String>> results = new ArrayList<>();
+        if (wordList == null || wordList.size() == 0 || beginWord == null || endWord == null || beginWord.length() != endWord.length()) {
+            return results;
+        }
+        if (beginWord.equals(endWord)) {
+            List<String> curResult = new ArrayList<>();
+            curResult.add(beginWord);
+            results.add(curResult);
+            return results;
+        }
+        if (isMorph(beginWord, endWord)) {
+            List<String> curResult = new ArrayList<>();
+            curResult.add(beginWord);
+            curResult.add(endWord);
+            results.add(curResult);
+            return results;
+        }
+        
+        if (wordList.contains(beginWord)) { // remove them in order not to add noise
+            wordList.remove(beginWord);
+        }
+        if (wordList.contains(endWord)) {
+            wordList.remove(endWord);
+        }
+        
+        Queue<ListSet> queue = new LinkedList<>();
+        ListSet ls = new ListSet();
+        ls.add(beginWord);
+        queue.offer(ls);
+        int minPathLength = 0;
+        while (queue.peek() != null) {
+            ListSet curLS = queue.poll();
+            if (minPathLength != 0 && curLS.size() >= minPathLength) { // we only find the path equals to the minPathLength
+                break;
+            }
+            String mostRecentWord = curLS.getLastWord();
+            for (int curCharIndex = 0; curCharIndex < mostRecentWord.length(); curCharIndex++) {
+                for (char curAlphabet = 'a'; curAlphabet <= 'z'; curAlphabet++) {
+                    if (mostRecentWord.charAt(curCharIndex) == curAlphabet) {
+                        continue;
+                    }
+                    
+                    String morph = replace(mostRecentWord, curCharIndex, curAlphabet);
+                    if (morph.equals(endWord)) {
+                        if (minPathLength == 0) {
+                            minPathLength = curLS.size() + 1;
+                        }
+                        ListSet newLS = new ListSet(curLS);
+                        newLS.add(endWord); // we don't need to push it to the queue since we don't need to use this to traverse
+                        results.add(newLS.getList());
+                        continue;
+                    }
+                    
+                    if (wordList.contains(morph) && !curLS.contains(morph)) { // we need to make sure it does not add its previous words
+                        ListSet newLS = new ListSet(curLS);
+                        newLS.add(morph);
+                        queue.offer(newLS);
+                    }
+                }
+            }
+        }
+        return results;
+    }
+}
