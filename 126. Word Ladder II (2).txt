@@ -1,0 +1,129 @@
+/*
+*/
+import java.util.*;
+public class Solution {
+    private class HashMapInfo { // an arraylist supporting o(1) search, may cause too much complexity
+        HashMap<String, Integer> map;
+        String mostRecentWord;
+        
+        public HashMapInfo() {
+            map = new HashMap<>();
+        }
+        
+        public HashMapInfo(HashMapInfo hmi) {
+            map = new HashMap<>(hmi.map);
+            mostRecentWord = hmi.mostRecentWord;
+        }
+        
+        public String getLastWord() {
+            return mostRecentWord;
+        }
+        
+        public List<String> toList() {
+            String[] strings = new String[map.size()];
+            Iterator<String> i = map.keySet().iterator();
+            while (i.hasNext()) {
+                String string = i.next();
+                strings[map.get(string)] = string;
+            }
+            return Arrays.asList(strings);
+        }
+        
+        public void add(String string) {
+            map.put(string, size());
+            mostRecentWord = string;
+        }
+        
+        public int size() {
+            return map.size();
+        }
+        
+        public boolean contains(String string) {
+            return map.containsKey(string);
+        }
+    }
+    
+    private boolean isMorph(String s1, String s2) {
+        if (s1.length() != s2.length()) {
+            return false;
+        }
+        int diff = 0;
+        for (int curIndex = 0; curIndex < s1.length(); curIndex++) {
+            if (s1.charAt(curIndex) != s2.charAt(curIndex)) {
+                diff++;
+            }
+        }
+        return diff == 1;
+    }
+    
+    private String replace(String original, int index, char newChar) {
+        char[] originalCharArray = original.toCharArray();
+        originalCharArray[index] = newChar;
+        return new String(originalCharArray);
+    }
+    
+    public List<List<String>> findLadders(String beginWord, String endWord, Set<String> wordList) {
+        List<List<String>> results = new ArrayList<>();
+        if (wordList == null || wordList.size() == 0 || beginWord == null || endWord == null || beginWord.length() != endWord.length()) {
+            return results;
+        }
+        if (beginWord.equals(endWord)) {
+            List<String> curResult = new ArrayList<>();
+            curResult.add(beginWord);
+            results.add(curResult);
+            return results;
+        }
+        if (isMorph(beginWord, endWord)) {
+            List<String> curResult = new ArrayList<>();
+            curResult.add(beginWord);
+            curResult.add(endWord);
+            results.add(curResult);
+            return results;
+        }
+        
+        if (wordList.contains(beginWord)) { // remove them in order not to add noise
+            wordList.remove(beginWord);
+        }
+        if (wordList.contains(endWord)) {
+            wordList.remove(endWord);
+        }
+        
+        Queue<HashMapInfo> queue = new LinkedList<>();
+        HashMapInfo ls = new HashMapInfo();
+        ls.add(beginWord);
+        queue.offer(ls);
+        int minPathLength = 0;
+        while (queue.peek() != null) {
+            HashMapInfo curHmi = queue.poll();
+            if (minPathLength != 0 && curHmi.size() >= minPathLength) { // we only find the path equals to the minPathLength
+                break;
+            }
+            String mostRecentWord = curHmi.getLastWord();
+            for (int curCharIndex = 0; curCharIndex < mostRecentWord.length(); curCharIndex++) {
+                for (char curAlphabet = 'a'; curAlphabet <= 'z'; curAlphabet++) {
+                    if (mostRecentWord.charAt(curCharIndex) == curAlphabet) {
+                        continue;
+                    }
+                    
+                    String morph = replace(mostRecentWord, curCharIndex, curAlphabet);
+                    if (morph.equals(endWord)) {
+                        if (minPathLength == 0) {
+                            minPathLength = curHmi.size() + 1;
+                        }
+                        HashMapInfo newHmi = new HashMapInfo(curHmi);
+                        newHmi.add(endWord); // we don't need to push it to the queue since we don't need to use this to traverse
+                        results.add(newHmi.toList());
+                        continue;
+                    }
+                    
+                    if (wordList.contains(morph) && !curHmi.contains(morph)) { // we need to make sure it does not add its previous words
+                        HashMapInfo newHmi = new HashMapInfo(curHmi);
+                        newHmi.add(morph);
+                        queue.offer(newHmi);
+                    }
+                }
+            }
+        }
+        return results;
+    }
+}
