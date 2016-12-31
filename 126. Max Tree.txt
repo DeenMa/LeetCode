@@ -1,0 +1,41 @@
+    private static class TreeNode {
+        int value;
+        TreeNode left;
+        TreeNode right;
+        public TreeNode (int v) {
+            value = v;
+        }
+      }
+
+    public static TreeNode maxTree(int[] nums) {
+        if (nums == null || nums.length == 0) {
+            return null;
+        }
+        Stack<TreeNode> stack = new Stack<>();
+        TreeNode head = null; // we need to keep track of this in order to return, every time stack is empty, it is a candidate for head
+        TreeNode cur = null;
+        TreeNode pre = null;
+        for (int i = 0; i < nums.length; i++) {
+            TreeNode tn = new TreeNode(nums[i]);
+            if (!stack.empty() && stack.peek().value < nums[i]) {
+                pre = null;
+                while (!stack.empty() && stack.peek().value < nums[i]) {
+                    cur = stack.pop();
+                    cur.right = pre;
+                    pre = cur;
+                }
+                tn.left = cur;
+            }
+            if (stack.empty()) {
+                head = tn;
+            }
+            stack.push(tn);
+        }
+        pre = null;
+        while (!stack.empty()) {
+            cur = stack.pop();
+            cur.right = pre;
+            pre = cur;
+        }
+        return head;
+    }    
