@@ -1,0 +1,30 @@
+/*
+o(n^2) time and space - not optimal
+using dp to store the minimum value between index i and j
+*/
+import java.util.*;
+public class Solution {
+    public int largestRectangleArea(int[] heights) {
+        if (heights == null || heights.length == 0) {
+            return 0;
+        }
+        int len = heights.length;
+        int[][] minValue = new int[len][len];
+        for (int i = 0; i < len; i++) {
+            int curMin = heights[i];
+            minValue[i][i] = curMin;
+            for (int j = i + 1; j < len; j++) {
+                curMin = Math.min(curMin, heights[j]);
+                minValue[i][j] = curMin;
+            }
+        }
+        
+        int max = 0;
+        for (int i = 0; i < len; i++) {
+            for (int j = i; j < len; j++) {
+                max = Math.max(max, (j - i + 1) * minValue[i][j]);
+            }
+        }
+        return max;
+    }
+}
