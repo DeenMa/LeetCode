@@ -1,0 +1,37 @@
+public class Solution {
+    private class Info {
+        int index;
+        int height;
+        public Info(int i, int h) {
+            index = i;
+            height = h;
+        }
+    }
+    
+    public int largestRectangleArea(int[] heights) {
+        if (heights == null || heights.length == 0) {
+            return 0;
+        }
+        
+        int max = 0;
+        Stack<Info> stack = new Stack<>();
+        for (int i = 0; i < heights.length; i++) {
+            if (stack.empty() || stack.peek().height < heights[i]) {
+                stack.push(new Info(i, heights[i]));
+            } else {
+                int startIndex = i;
+                while (!stack.empty() && stack.peek().height >= heights[i]) {
+                    Info curPeek = stack.pop();
+                    max = Math.max(max, curPeek.height * (i - curPeek.index));
+                    startIndex = curPeek.index;
+                }
+                stack.push(new Info(startIndex, heights[i]));
+            }
+        }
+        while (!stack.empty()) {
+            Info curPeek = stack.pop();
+            max = Math.max(max, curPeek.height * (heights.length - curPeek.index));
+        }
+        return max;
+    }
+}
