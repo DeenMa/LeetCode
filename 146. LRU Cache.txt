@@ -1,0 +1,90 @@
+public class LRUCache {
+    private class DoublyLinkedList {
+        Integer key;
+        Integer value;
+        DoublyLinkedList pre;
+        DoublyLinkedList nxt;
+        
+        public DoublyLinkedList(Integer k, Integer v) {
+            key = k;
+            value = v;
+        }
+    }
+    
+    HashMap<Integer, DoublyLinkedList> map;
+    int size;
+    int capacity;
+    DoublyLinkedList dummy; // head (dummy.next) is the most recent node and tail is least recent node
+    DoublyLinkedList tail;
+    
+    public LRUCache(int capacity) {
+        if (capacity == 0) {
+            throw new RuntimeException("Cannot initiate a zero-size LRU!");
+        }
+        map = new HashMap<>();
+        size = 0;
+        this.capacity = capacity;
+        dummy = new DoublyLinkedList(null, null);
+        tail = dummy;
+    }
+    
+    private void moveCurrentNodeToFront(DoublyLinkedList node) {
+        DoublyLinkedList prev = node.pre; // this always exist (since dummy is always there)
+        DoublyLinkedList next = node.nxt; // this might not exist
+        
+        prev.nxt = next;
+        if (next != null) {
+            next.pre = prev;
+        } else { // in this case tail has changed
+            tail = prev;
+        }
+        insertCurrentNodeToFront(node);
+    }
+    
+    private void insertCurrentNodeToFront(DoublyLinkedList node) {
+        DoublyLinkedList next = dummy.nxt; // note that it might not exist
+        dummy.nxt = node;
+        node.pre = dummy;
+        node.nxt = next;
+        if (next != null) {
+            next.pre = node;
+        } else {
+            tail = node;
+        }
+    }
+    
+    public int get(int key) {
+        if (!map.containsKey(key)) {
+            return -1;
+        }
+        
+        DoublyLinkedList node = map.get(key);
+        moveCurrentNodeToFront(node);
+        return dummy.nxt.value;
+    }
+    
+    private void removeLastNode() {
+        DoublyLinkedList last = tail;
+        DoublyLinkedList prev = last.pre;
+        prev.nxt = null;
+        tail = prev;
+    }
+    
+    public void set(int key, int value) {
+        if (map.containsKey(key)) {
+            DoublyLinkedList node = map.get(key);
+            node.value = value;
+            moveCurrentNodeToFront(node);
+        } else {
+            if (size < capacity) { // insert directly
+                size++;
+            } else { // remove the last one, then insert the node to first
+                map.remove(tail.key); // remove from map first
+                removeLastNode();
+            }
+            DoublyLinkedList node = new DoublyLinkedList(key, value);
+            map.put(key, node);
+            insertCurrentNodeToFront(node);
+        }
+    }
+}
