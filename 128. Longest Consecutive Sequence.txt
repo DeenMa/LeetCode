@@ -1,0 +1,40 @@
+/*
+algorithm: use a hashset
+1. store all the data into it
+2. for all the data inside nums
+2.1 once we got a number, remove all consequent number below it and above it, then compare the length:
+2.2 if a number is not inside, that means it has been checked, continue;
+*/
+public class Solution {
+    public int longestConsecutive(int[] nums) {
+        if (nums == null || nums.length == 0) {
+            return 0;
+        }
+        HashSet<Integer> set = new HashSet<>();
+        for (int i = 0; i < nums.length; i++) {
+            set.add(nums[i]);
+        }
+        
+        int longest = 0;
+        for (int i = 0; i < nums.length; i++) {
+            if (!set.contains(nums[i])) { // checked in previous iterations
+                continue;
+            }
+            set.remove(nums[i]);
+            int down = nums[i] - 1;
+            while (set.contains(down)) {
+                set.remove(down);
+                down--;
+            }
+            
+            int up = nums[i] + 1;
+            while (set.contains(up)) {
+                set.remove(up);
+                up++;
+            }
+            
+            longest = Math.max(up - down - 1, longest);
+        }
+        return longest;
+    }
+}
