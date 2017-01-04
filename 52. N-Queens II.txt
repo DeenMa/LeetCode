@@ -1,0 +1,40 @@
+/*
+algorithm: backtracing
+why not dp? cannot find a good function
+*/
+import java.util.*;
+public class Solution {
+    private int analyzeQueenPlacements(int result, List<Integer> curPlacement, int n) {
+        if (curPlacement.size() == n) {
+            return result + 1; // we find a new one
+        }
+        
+        boolean[] curRow = new boolean[n]; // record the current row, if true that means placing queen on this column will result in attacking with previous queen(s)
+        for (int preRow = 0; preRow < curPlacement.size(); preRow++) {
+            int preCol = curPlacement.get(preRow);
+            curRow[preCol] = true; // avoid col attack
+            int leftDiagnal = preCol - (curPlacement.size() - preRow);
+            if (leftDiagnal > -1) {
+                curRow[leftDiagnal] = true;
+            }
+            int rightDiagnal = preCol + (curPlacement.size() - preRow);
+            if (rightDiagnal < n) {
+                curRow[rightDiagnal] = true;
+            }
+        }
+        
+        for (int curCol = 0; curCol < n; curCol++) {
+            if (curRow[curCol] == false) { // placable
+                List<Integer> newPlacement = new ArrayList<>(curPlacement);
+                newPlacement.add(curCol);
+                result = analyzeQueenPlacements(result, newPlacement, n);
+            }
+        }
+        return result;
+    }
+    
+    public int totalNQueens(int n) {
+        List<Integer> curPlacement = new ArrayList<>(); // we use a list of integer to store the queen: curPlacement.get(i) = j means queen in the row i had been placed in column j - since each row can only place 1 queen this will work
+        return analyzeQueenPlacements(0, curPlacement, n);
+    }
+}
