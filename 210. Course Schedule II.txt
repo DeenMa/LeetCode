@@ -1,0 +1,40 @@
+public class Solution {
+    public int[] findOrder(int numCourses, int[][] prerequisites) {
+        if (prerequisites == null) {
+            return new int[0];
+        } 
+        // get all the inbound information
+        int[] inbounds = new int[numCourses];
+        for (int i = 0; i < prerequisites.length; i++) {
+            inbounds[prerequisites[i][0]]++;
+        }
+        
+        int[] result = new int[numCourses];
+        int index = 0;
+        
+        Queue<Integer> queue = new LinkedList<>();
+        for (int i = 0; i < numCourses; i++) {
+            if (inbounds[i] == 0) {
+                queue.add(i);
+            }
+        }
+        
+        while (queue.peek() != null) {
+            int curCourse = queue.poll();
+            result[index++] = curCourse;
+            for (int i = 0; i < prerequisites.length; i++) {
+                if (prerequisites[i][1] == curCourse) {
+                    int nxtCourse = prerequisites[i][0];
+                    inbounds[nxtCourse]--;
+                    if (inbounds[nxtCourse] == 0) {
+                        queue.add(nxtCourse);
+                    }
+                }
+            }
+        }
+        if (index != numCourses) {
+            return new int[0]; 
+        }
+        return result;
+    }
+}
