@@ -1,0 +1,58 @@
+import java.util.*;
+public class Solution {
+    private final int MAX_SIZE = 3;
+    
+    public List<Integer> majorityElement(int[] nums) {
+        List<Integer> result = new ArrayList<>();
+        if (nums == null || nums.length == 0) {
+            return result;
+        }
+        HashMap<Integer, Integer> map = new HashMap<>();
+        for (int i = 0; i < nums.length; i++) {
+            if (map.containsKey(nums[i])) {
+                map.put(nums[i], map.get(nums[i]) + 1);
+            } else {
+                if (map.size() == MAX_SIZE - 1) {
+                    Iterator<Integer> iterator = map.keySet().iterator();
+                    List<Integer> toRemove = new ArrayList<>();
+                    while (iterator.hasNext()) {
+                        int curValue = iterator.next();
+                        if (map.get(curValue) == 1) {
+                            toRemove.add(curValue);
+                        } else {
+                            map.put(curValue, map.get(curValue) - 1);
+                        }
+                    }
+                    for (int j = 0; j < toRemove.size(); j++) {
+                        map.remove(toRemove.get(j));
+                    }
+                } else {
+                    map.put(nums[i], 1);
+                }
+            }
+        }
+        
+        HashMap<Integer, Integer> candidates = new HashMap<>();
+        Iterator<Integer> iterator = map.keySet().iterator();
+        while (iterator.hasNext()) {
+            candidates.put(iterator.next(), 0);
+        }
+        
+        map.clear();
+        for (int i = 0; i < nums.length; i++) {
+            if (candidates.containsKey(nums[i])) {
+                candidates.put(nums[i], candidates.get(nums[i]) + 1);
+            }
+        }
+        
+        int threshold = nums.length / MAX_SIZE;
+        iterator = candidates.keySet().iterator();
+        while (iterator.hasNext()) {
+            int curCandidate = iterator.next();
+            if (candidates.get(curCandidate) > threshold) {
+                result.add(curCandidate);
+            }
+        }
+        return result;
+    }
+}
