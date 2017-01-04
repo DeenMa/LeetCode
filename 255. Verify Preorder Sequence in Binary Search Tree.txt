@@ -1,0 +1,31 @@
+public class Solution {
+    private boolean verifyPreorder(int[] preorder, int start, int end) {
+        if (start > end - 2) {
+            return true;
+        }
+        int pivot = -1;
+        for (int i = start + 1; i <= end; i++) {
+            if (preorder[i] > preorder[start]) {
+                pivot = i;
+                break;
+            }
+        }
+        if (pivot != -1) { // make sure all numbers after pivot are bigger than start, if not return false
+            for (int i = pivot + 1; i <= end; i++) {
+                if (preorder[i] < preorder[start]) {
+                    return false;
+                }
+            }
+            // check two subtrees
+            return verifyPreorder(preorder, start + 1, pivot - 1) && verifyPreorder(preorder, pivot, end);
+        }
+        return verifyPreorder(preorder, start + 1, end); // there is only left subtree, check it!
+    }
+    
+    public boolean verifyPreorder(int[] preorder) {
+        if (preorder == null) {
+            return false;
+        }
+        return verifyPreorder(preorder, 0, preorder.length - 1);
+    }
+}
