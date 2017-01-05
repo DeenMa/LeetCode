@@ -1,0 +1,41 @@
+import java.util.*;
+public class Solution {
+    private boolean isLocalMin(int[] prices, int index) {
+        if (index == 0) {
+            return prices[index] <= prices[index + 1];
+        }
+        if (index == prices.length - 1) {
+            return prices[index] <= prices[index - 1];
+        }
+        return prices[index] <= prices[index + 1] && prices[index] <= prices[index - 1];
+    }
+    
+    private boolean isLocalMax(int[] prices, int index) {
+        if (index == 0) {
+            return prices[index] >= prices[index + 1];
+        }
+        if (index == prices.length - 1) {
+            return prices[index] >= prices[index - 1];
+        }
+        return prices[index] >= prices[index + 1] && prices[index] >= prices[index - 1];
+    }
+    
+    public int maxProfit(int[] prices) {
+        if (prices == null || prices.length < 2) {
+            return 0;
+        }
+        Integer localMin = null;
+        int sum = 0;
+        for (int i = 0; i < prices.length; i++) {
+            if (isLocalMin(prices, i)) {
+                localMin = prices[i];
+            } else if (isLocalMax(prices, i)) {
+                if (localMin != null) { // to remove the index == 0 local max case
+                    sum += prices[i] - localMin;
+                    localMin = null;
+                }
+            }
+        }
+        return sum;
+    }
+}
