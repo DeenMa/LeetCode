@@ -1,0 +1,16 @@
+import java.util.*;
+public class Solution {
+    public int maxProfit(int[] prices) {
+        int curMin = Integer.MAX_VALUE;
+        int max = 0;
+        for (int i = 0; i < prices.length; i++) {
+            if (prices[i] < curMin) {
+                curMin = prices[i];
+            }
+            if (prices[i] - curMin > max) {
+                max = prices[i] - curMin;
+            }
+        }
+        return max;
+    }
+}
