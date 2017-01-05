@@ -1,0 +1,44 @@
+/*
+algorithm: forward and backward
+forward to find the max profit if the day ends at i for the transaction of the first stock
+backward to find the max profit if the day ends at i for the transaction of the second stock
+then combine two arrays to find the max
+follow-up: what if k transactions are allowed?
+*/
+public class Solution {
+    public int maxProfit(int[] prices) {
+        if (prices == null || prices.length < 2) {
+            return 0;
+        }
+        int[] forward = new int[prices.length]; // profit to sell first stock at day i
+        forward[0] = 0; // we are not allowed to sell at the first day, therefore mark min in case
+        int curMin = prices[0];
+        for (int i = 1; i < prices.length; i++) { // forward: min, 0, 4, 3, 0, 3
+            if (prices[i] < curMin) {
+                curMin = prices[i]; // curMin: 0
+                forward[i] = forward[i - 1]; // no way to get profit
+            } else {
+                forward[i] = Math.max(prices[i] - curMin, forward[i - 1]);
+            }
+        }
+        int[] backward = new int[prices.length];
+        backward[prices.length - 1] = 0; // profit to buy second stock at day i
+        int curMax = prices[prices.length - 1];
+        for (int i = prices.length - 2; i > -1; i--) { // backward: 3, 4, 0, 0, 3, min
+            if (prices[i] > curMax) {
+                curMax = prices[i]; // curMax: 6
+                backward[i] = backward[i + 1]; // again if we buy this stock at the peak, we cannot get profit
+            } else {
+                backward[i] = Math.max(curMax - prices[i], backward[i + 1]);
+            }
+        }
+        int max = 0;
+        for (int i = 1; i < prices.length; i++) { // for the single transaction
+            max = Math.max(max, forward[i]); // 4
+        }
+        for (int i = 2; i <= prices.length - 2; i++) {
+            max = Math.max(max, forward[i - 1] + backward[i]); // we cannot do it at the same day
+        }
+        return max;
+    }
+}
