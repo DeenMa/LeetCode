@@ -1,0 +1,34 @@
+import java.util.*;
+public class Solution {
+    public int minSubArrayLen(int s, int[] nums) {
+        if (nums == null || nums.length == 0) {
+            return 0;
+        }
+        int left = 0;
+        int right = left;
+        int curSum = nums[left];
+        int curMin = Integer.MAX_VALUE;
+        while (right < nums.length) {
+            if (curSum < s) {
+                right++;
+                if (right < nums.length) {
+                    curSum += nums[right];
+                }
+            } else {
+                curMin = Math.min(curMin, right - left + 1);
+                curSum -= nums[left];
+                left++;
+                if (left > right) {
+                    right++;
+                    if (right < nums.length) {
+                        curSum += nums[right];
+                    }
+                }
+            }
+        }
+        if (curMin == Integer.MAX_VALUE) {
+            return 0;
+        }
+        return curMin;
+    }
+}
