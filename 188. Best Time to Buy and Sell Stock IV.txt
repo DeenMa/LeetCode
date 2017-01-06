@@ -1,0 +1,39 @@
+    public static int maxProfit(int k, int[] prices) {
+        if (prices == null || prices.length < 2) {
+            return 0;
+        }
+        int[][] profitSingleTransaction = new int[prices.length][prices.length];
+        for (int i = 0; i < prices.length; i++) {
+            profitSingleTransaction[i][i] = 0;
+            int curMin = prices[i];
+            for (int j = i + 1; j < prices.length; j++) {
+                if (prices[j] < curMin) {
+                    curMin = prices[i];
+                    profitSingleTransaction[i][j] = profitSingleTransaction[i][j - 1];
+                } else {
+                    profitSingleTransaction[i][j] = Math.max(profitSingleTransaction[i][j - 1], prices[j] - curMin);
+                }
+            }
+        }
+        int[][] profitAllTransactions = new int[prices.length + 1][k + 1];
+        for (int i = 0; i < prices.length + 1; i++) {
+            profitAllTransactions[i][0] = 0; // if we don't commit transaction, no profit will be earned
+        }
+        for (int i = 0; i < k + 1; i++) {
+            profitAllTransactions[0][i] = 0; // on day 0, no transaction can be done
+        }
+        for (int curDay = 1; curDay < prices.length + 1; curDay++) {
+            for (int curTransaction = 1; curTransaction < k + 1; curTransaction++) {
+                int max = 0;
+                for (int preDay = 0; preDay < curDay; preDay++) {
+                    max = Math.max(max, profitAllTransactions[preDay][curTransaction - 1] + profitSingleTransaction[preDay][curDay - 1]);
+                }
+                profitAllTransactions[curDay][curTransaction] = max;
+            }
+        }
+        int result = 0;
+        for (int i = 0; i < k + 1; i++) {
+            result = Math.max(result, profitAllTransactions[prices.length][i]);
+        }
+        return result;
+    }
