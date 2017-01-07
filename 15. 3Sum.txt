@@ -1,0 +1,48 @@
+import java.util.*;
+public class Solution {
+    private int moveCursor(int[] nums, int offset, String command) {
+        int result = offset;
+        if (command.equals("right")) {
+            result = offset + 1;
+            while (result < nums.length && nums[result] == nums[offset]) {
+                result++;
+            }
+        } else if (command.equals("left")) {
+            result = offset - 1;
+            while (result >= 0 && nums[result] == nums[offset]) {
+                result--;
+            }
+        }
+        return result;
+    }
+    
+    public List<List<Integer>> threeSum(int[] nums) {
+        List<List<Integer>> results = new ArrayList<>();
+        if (nums == null || nums.length < 3) {
+            return results;
+        }
+        Arrays.sort(nums);
+        int start = 0;
+        while (start < nums.length) {
+            int left = start + 1; // note that the value of left can be same as the value of start -> the only thing is when left and right is moving, the value after move should not be the same with the value before move 
+            int right = nums.length - 1;
+            while (left < right) {
+                if (nums[start] + nums[left] + nums[right] == 0) {
+                    List<Integer> curResult = new ArrayList<>();
+                    curResult.add(nums[start]);
+                    curResult.add(nums[left]);
+                    curResult.add(nums[right]);
+                    results.add(curResult);
+                    left = moveCursor(nums, left, "right");
+                    right = moveCursor(nums, right, "left");
+                } else if (nums[start] + nums[left] + nums[right] < 0) {
+                    left = moveCursor(nums, left, "right");
+                } else {
+                    right = moveCursor(nums, right, "left");
+                }
+            }
+            start = moveCursor(nums, start, "right");
+        }
+        return results;
+    }
+}
