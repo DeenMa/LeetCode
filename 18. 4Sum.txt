@@ -1,0 +1,52 @@
+/*
+there is a o(n^3) time and o(1) space solution, along with a o(n^2) time and o(n^2) space solution
+*/
+import java.util.*;
+public class Solution {
+    private int move(int[] nums, int index, String direction) {
+        int result = index;
+        if (direction.equals("right")) {
+            result++;
+            while (result < nums.length && nums[result] == nums[index]) {
+                result++;
+            }
+        } else if (direction.equals("left")) {
+            result--;
+            while (result > -1 && nums[result] == nums[index]) {
+                result--;
+            }
+        }
+        return result;
+    }
+    
+    public List<List<Integer>> fourSum(int[] nums, int target) {
+        List<List<Integer>> results = new ArrayList<>();
+        if (nums == null || nums.length < 4) {
+            return results;
+        }
+        Arrays.sort(nums);
+        for (int first = 0; first < nums.length - 3; first = move(nums, first, "right")) {
+            for (int second = first + 1; second < nums.length - 2; second = move(nums, second, "right")) {
+                int left = second + 1;
+                int right = nums.length - 1;
+                while (left < right) {
+                    if (nums[first] + nums[second] + nums[left] + nums[right] < target) {
+                        left = move(nums, left, "right");
+                    } else if (nums[first] + nums[second] + nums[left] + nums[right] > target) {
+                        right = move(nums, right, "left");
+                    } else {
+                        List<Integer> result = new ArrayList<>();
+                        result.add(nums[first]);
+                        result.add(nums[second]);
+                        result.add(nums[left]);
+                        result.add(nums[right]);
+                        results.add(result);
+                        left = move(nums, left, "right");
+                        right = move(nums, right, "left");
+                    }
+                }
+            }
+        }
+        return results;
+    }
+}
