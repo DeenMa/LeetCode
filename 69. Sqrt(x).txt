@@ -1,0 +1,35 @@
+    /*
+    algorithm: use binary search start = 0 and end = x; middle * middle, and until we find a middle * middle == x or < x but (middle + 1) * (middle + 1) > x then stop
+    the only thing to take care is we need to convert int into long
+    */
+    public int mySqrt(int x) {
+        if (x < 0) {
+            throw new RuntimeException("mySqrt: value cannot be negative");
+        }
+        if (x < 2) { // 0, 1
+            return x;
+        }
+        if (x < 4) { // 2, 3
+            return 1;
+        }
+        
+        long xLong = (long) x;
+        long start = 0;
+        long end = xLong;
+        
+        while (start < end - 1) {
+            long middle = (start + end) / 2;
+            if (middle * middle > x) {
+                end = middle;
+            } else if ((middle + 1) * (middle + 1) <= x) {
+                start = middle;
+            } else {
+                return (int)middle;
+            }
+        }
+        
+        if (start * start == x || (start * start < x && (start + 1) * (start + 1) > x)) {
+            return (int)start;
+        }
+        return (int)end;
+    }
