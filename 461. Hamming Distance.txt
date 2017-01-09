@@ -1,0 +1,13 @@
+public class Solution {
+    private final int INTEGER_SIZE = 32;
+    public int hammingDistance(int x, int y) {
+        int result = 0;
+        int bit = 0x80000000;
+        for (int i = 0; i < INTEGER_SIZE; i++) {
+            if ((x & (bit >>> i)) != (y & (bit >>> i))) {
+                result++;
+            }
+        }
+        return result;
+    }
+}
