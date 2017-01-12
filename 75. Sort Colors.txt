@@ -1,0 +1,38 @@
+/*
+algorithm:
+have a left and right pointer. left one is the index first "1" will appear and right one is the index last "1" will appear
+and have a moving pointer, it will check whether current one is the "1", if "0", swap number with the left pointer, and left++ (make sure moving >= left), else swap with right pointer, right--;
+repeat until moving > right
+*/
+import java.util.*;
+public class Solution {
+    private void swap(int[] nums, int i1, int i2) {
+        int temp = nums[i1];
+        nums[i1] = nums[i2];
+        nums[i2] = temp;
+    }
+    
+    public void sortColors(int[] nums) {
+        if (nums == null || nums.length < 2) {
+            return;
+        }
+        int left = 0;
+        int right = nums.length - 1;
+        int cur = left;
+        while (cur <= right) {
+            while (cur <= right && nums[cur] != 1) {
+                if (nums[cur] == 0) {
+                    swap(nums, cur, left);
+                    left++;
+                    if (left > cur) {
+                        cur = left;
+                    }
+                } else {
+                    swap(nums, cur, right);
+                    right--;
+                }
+            }
+            cur++;
+        }
+    }
+}
