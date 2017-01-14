@@ -1,0 +1,43 @@
+/*
+algorithm: use extra space
+*/
+import java.util.*;
+public class Solution {
+    public String licenseKeyFormatting(String S, int K) {
+        List<Character> temp = new ArrayList<>();
+        for (int i = 0; i < S.length(); i++) {
+            if (S.charAt(i) == '-') {
+                continue;
+            }
+            temp.add(S.charAt(i));
+        }
+        int size = temp.size();
+        int residue = size % K;
+        StringBuilder result = new StringBuilder();
+        if (residue != 0) {
+            for (int i = 0; i < residue; i++) {
+                if (Character.isLowerCase(temp.get(i))) {
+                    result.append(Character.toUpperCase(temp.get(i)));
+                } else {
+                    result.append(temp.get(i));
+                }
+            }
+            if (residue != size) {
+                result.append('-');
+            }
+        }
+        for (int i = residue; i < size; i += K) {
+            for (int j = 0; j < K; j++) {
+                if (Character.isLowerCase(temp.get(i + j))) {
+                    result.append(Character.toUpperCase(temp.get(i + j)));
+                } else {
+                    result.append(temp.get(i + j));
+                }
+            }
+            if (i != size - K) {
+                result.append('-');
+            }
+        }
+        return result.toString();
+    }
+}
