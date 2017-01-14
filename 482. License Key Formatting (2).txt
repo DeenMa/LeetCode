@@ -1,0 +1,44 @@
+import java.util.*;
+public class Solution {
+    private void reverseCharArray(char[] cArray, int start, int end) {
+        int left = start;
+        int right = end;
+        while (left < right) {
+            char temp = cArray[left];
+            cArray[left] = cArray[right];
+            cArray[right] = temp;
+            left++;
+            right--;
+        }
+    }
+    
+    public String licenseKeyFormatting(String S, int K) {
+        char[] cArray = new char[(S.length() / K + 1) * (K + 1)];
+        int index = 0;
+        int indexCurGroup = 0;
+        for (int i = S.length() - 1; i > -1; i--) { // this is from back to front, since we don't know how long the string is
+            if (S.charAt(i) == '-') {
+                continue;
+            }
+            if (Character.isLowerCase(S.charAt(i))) {
+                cArray[index++] = Character.toUpperCase(S.charAt(i));
+            } else {
+                cArray[index++] = S.charAt(i);
+            }
+            indexCurGroup++;
+            if (indexCurGroup % K == 0) { // we don't add - to the last character
+                cArray[index++] = '-';
+                indexCurGroup = 0;
+            }
+        }
+        int sizeNewString = index;
+        if (sizeNewString == 0) {
+            return new String();
+        }
+        if (cArray[sizeNewString - 1] == '-') {
+            sizeNewString--;
+        }
+        reverseCharArray(cArray, 0, sizeNewString - 1); // therefore we need to convert it back here
+        return String.valueOf(cArray).substring(0, sizeNewString);
+    }
+}
