@@ -1,0 +1,86 @@
+import java.util.*;
+public class Solution {
+    private class CharInfo {
+        Integer curIndex; // this is the end index - the index of the last occurance of the char
+        char curChar;
+        public CharInfo(Integer i, char c) {
+            curIndex = i;
+            curChar = c;
+        }
+    }
+    
+    private class CharInfoArray {
+        CharInfo[] array; // newer one first, older one second
+        public CharInfoArray() {
+            array = new CharInfo[2];
+        }
+        
+        private boolean exist(char c) {
+            if (array[0] == null) {
+                return false;
+            }
+            if (array[0].curChar != c) {
+                if (array[1] == null || array[1].curChar != c) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        
+        private void update(Integer i, char c) {
+            if (array[0].curChar != c) {
+                CharInfo charInfo = array[0];
+                array[1] = charInfo;
+            }
+            array[0] = new CharInfo(i, c);
+        }
+        
+        private boolean full() {
+            return array[1] != null;
+        }
+        
+        private Integer remove() {
+            CharInfo charInfo = array[1];
+            array[1] = null;
+            return charInfo.curIndex;
+        }
+        
+        private void insert(Integer i, char c) {
+            CharInfo charInfo = array[0];
+            array[1] = charInfo;
+            array[0] = new CharInfo(i, c);
+        }
+        
+        public Integer add(Integer i, char c) {
+            Integer result = null;
+            if (exist(c)) {
+                update(i, c);
+            } else {
+                if (full()) {
+                    result = remove();
+                }
+                insert(i, c);
+            }
+            return result;
+        }
+    }
+    
+    public int lengthOfLongestSubstringTwoDistinct(String s) {
+        if (s == null || s.length() == 0) {
+            return 0;
+        }
+        Integer result = 0;
+        CharInfoArray charInfoArray = new CharInfoArray();
+        int firstValidIndex = 0;
+        for (Integer i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            Integer removedIndex = charInfoArray.add(i, c);
+            if (removedIndex != null) {
+                result = Math.max(result, i - firstValidIndex);
+                firstValidIndex = removedIndex + 1;
+            }
+        }
+        result = Math.max(result, s.length() - firstValidIndex);
+        return result;
+    }
+}
