@@ -1,0 +1,149 @@
+/*
+algorithm: using an Integer[][] to store the *confirmed increasing distance at one point
+using a hashmap<Integer, Info> to store all the visited but not confirmed points
+using a hashmap<Integer, List<Integer>> to store all the dependency pairs
+for i = 0 : rows
+for j = 0 : cols
+check neighbors, if none of the neighbor is bigger, or there are some bigger neighbors, but their values are all confirmed, then confirm this point. when confirming this point, make sure all the pairs dependent on the value of this point also get updated, until no more points can be confirmed
+if there are bigger neighbor that the value is not confirmed, add this pair to dependencies and store the visited information
+*/
+import java.util.*;
+public class Solution {
+    private static int rows;
+    private static int cols;
+    
+    private static class VisitInfo { // make data private in formal coding
+        int index; // = row * cols + col
+        HashSet<Integer> dependOn; // store all the indexes (points) this point is depended by
+        PriorityQueue<Integer> possibleValues; // make this max heap so that a single pop will get the value
+        
+        public VisitInfo(int i) {
+            index = i;
+            dependOn = new HashSet<>();
+            possibleValues = new PriorityQueue<>(10, Collections.reverseOrder());
+        }
+    }
+    
+    private static boolean isConfirmed(Integer[][] confirmedLongestIncreasingPath, int curRow, int curCol, int shiftRow, int shiftCol) {
+        return confirmedLongestIncreasingPath[curRow + shiftRow][curCol + shiftCol] != null;
+    }
+    
+    private static void addCurrentNeighborValueToPossibleValues(HashMap<Integer, VisitInfo> visitInfos, int curRow, int curCol, int shiftRow, int shiftCol, Integer[][] confirmedLongestIncreasingPath) {
+        visitInfos.get(curRow * cols + curCol).possibleValues.offer(confirmedLongestIncreasingPath[curRow + shiftRow][curCol + shiftCol] + 1);
+        System.out.println("Possible value added to point: row " + curRow + " col " + curCol + ", with the value " + (confirmedLongestIncreasingPath[curRow + shiftRow][curCol + shiftCol] + 1));
+    }
+    
+    private static void addCurrentPairToDependencyInfos(HashMap<Integer, VisitInfo> visitInfos, HashMap<Integer, HashSet<Integer>> dependencyInfos, int curRow, int curCol, int shiftRow, int shiftCol) {
+        visitInfos.get(curRow * cols + curCol).dependOn.add((curRow + shiftRow) * cols + (curCol + shiftCol));
+        System.out.println("Current dependency added to VisitInfo: point (" + curRow + ", " + curCol + ") depends on point (" + (curRow + shiftRow) + ", " + (curCol + shiftCol) + ")");
+        if (dependencyInfos.containsKey((curRow + shiftRow) * cols + (curCol + shiftCol))) { // update dependencyInfos
+            dependencyInfos.get((curRow + shiftRow) * cols + (curCol + shiftCol)).add(curRow * cols + curCol);
+        } else {
+            HashSet<Integer> set = new HashSet<>();
+            set.add(curRow * cols + curCol);
+            dependencyInfos.put((curRow + shiftRow) * cols + (curCol + shiftCol), set);
+        }
+        System.out.println("Current dependency added to dependencyInfos: point (" + (curRow + shiftRow) + ", " + (curCol + shiftCol) + ") leads to point (" + curRow + ", " + curCol + ")");
+    }
+    
+    // return whether this point is confirmed or not 
+    private static boolean checkNeighbor(boolean original, int[][] matrix, int curRow, int curCol, int shiftRow, int shiftCol, Integer[][] confirmedLongestIncreasingPath, HashMap<Integer, VisitInfo> visitInfos, HashMap<Integer, HashSet<Integer>> dependencyInfos) {
+        int nxtRow = curRow + shiftRow;
+        int nxtCol = curCol + shiftCol;
+        System.out.println("Checking neighbor: row " + nxtRow + " col " + nxtCol);
+        // invalid, do not need to update visitInfos, dependencyInfos
+        if (nxtRow < 0 || nxtRow >= rows || nxtCol < 0 || nxtCol >= cols || matrix[nxtRow][nxtCol] <= matrix[curRow][curCol]) {
+            return original;
+        }
+        boolean result = original;
+        if (isConfirmed(confirmedLongestIncreasingPath, curRow, curCol, shiftRow, shiftCol)) {
+            System.out.println("this point is confirmed");
+            addCurrentNeighborValueToPossibleValues(visitInfos, curRow, curCol, shiftRow, shiftCol, confirmedLongestIncreasingPath);
+        } else {
+            System.out.println("this point is unconfirmed");
+            result = false;
+            addCurrentPairToDependencyInfos(visitInfos, dependencyInfos, curRow, curCol, shiftRow, shiftCol);
+        }
+        return result;
+    }
+    
+    private static void confirmAllPoints(int curRow, int curCol, Integer[][] confirmedLongestIncreasingPath, HashMap<Integer, VisitInfo> visitInfos, HashMap<Integer, HashSet<Integer>> dependencyInfos) {
+        Queue<Integer> queue = new LinkedList<>(); // we may have multiple points to be confirmed, do a bfs for all of them
+        queue.offer(curRow * cols + curCol);
+        while (queue.peek() != null) {
+            Integer curPoint = queue.poll();
+            curRow = curPoint / cols;
+            curCol = curPoint % cols;
+            if (!visitInfos.containsKey(curPoint)) {
+                throw new RuntimeException("confirmAllPoints: this point had not yet been visited, should not be confirmed");
+            }
+            VisitInfo visitInfo = visitInfos.get(curPoint);
+            if (visitInfo.dependOn.size() != 0) {
+                throw new RuntimeException("confirmAllPoints: this point still depends on other points, should not be confirmed");
+            }
+            if (visitInfo.possibleValues.size() == 0) { // it is already the biggest among its neighbors
+                confirmedLongestIncreasingPath[curRow][curCol] = 1;
+            } else {
+                confirmedLongestIncreasingPath[curRow][curCol] = visitInfo.possibleValues.peek(); // it has already been added, should not be added again
+            }
+            System.out.println("Current confirmed point is (" + curRow + ", " + curCol + "), and the value is " + confirmedLongestIncreasingPath[curRow][curCol]);
+            // update dependencyInfos
+            if (dependencyInfos.containsKey(curPoint)) {
+                HashSet<Integer> allFollowingPoints = dependencyInfos.get(curPoint);
+                dependencyInfos.remove(curPoint);
+                Iterator<Integer> iterator = allFollowingPoints.iterator();
+                while (iterator.hasNext()) {
+                    Integer curFollowingPoint = iterator.next();
+                    if (!visitInfos.containsKey(curFollowingPoint)) { // maybe we shall simply pass instead of throwing an exception here
+                        throw new RuntimeException("confirmAllPoints: this point had not yet been visited, should not be updated");
+                    }
+                    visitInfo = visitInfos.get(curFollowingPoint);
+                    if (!visitInfo.dependOn.contains(curPoint)) {
+                        throw new RuntimeException("confirmAllPoints: data error, A -> B in dependencyInfos but B !<- A in visitInfo");
+                    }
+                    visitInfo.dependOn.remove(curPoint);
+                    visitInfo.possibleValues.offer(confirmedLongestIncreasingPath[curRow][curCol] + 1);
+                    if (visitInfo.dependOn.size() == 0) { // no longer depend on any other points, to be confirmed
+                        queue.offer(curFollowingPoint);
+                    }
+                }
+            }
+        }
+    }
+    
+    public static int longestIncreasingPath(int[][] matrix) {
+        if (matrix == null || matrix.length == 0) {
+            return 0;
+        }
+        rows = matrix.length;
+        if (matrix[0].length == 0) {
+            return 0;
+        }
+        cols = matrix[0].length;
+        Integer[][] confirmedLongestIncreasingPath = new Integer[rows][cols];
+        HashMap<Integer, VisitInfo> visitInfos = new HashMap<>();
+        HashMap<Integer, HashSet<Integer>> dependencyInfos = new HashMap<>();
+        for (int curRow = 0; curRow < rows; curRow++) { // make this code neat
+            for (int curCol = 0; curCol < cols; curCol++) {
+                System.out.println("Currently operating point: row " + curRow + " col " + curCol);
+                VisitInfo visitInfo = new VisitInfo(curRow * cols + curCol); // since we had been to this point, let's add the VisitInfo here to avoid more complicated analysis
+                visitInfos.put(curRow * cols + curCol, visitInfo);
+                boolean confirmed = true;
+                confirmed = checkNeighbor(confirmed, matrix, curRow, curCol, -1, 0, confirmedLongestIncreasingPath, visitInfos, dependencyInfos);
+                confirmed = checkNeighbor(confirmed, matrix, curRow, curCol, 1, 0, confirmedLongestIncreasingPath, visitInfos, dependencyInfos);
+                confirmed = checkNeighbor(confirmed, matrix, curRow, curCol, 0, -1, confirmedLongestIncreasingPath, visitInfos, dependencyInfos);
+                confirmed = checkNeighbor(confirmed, matrix, curRow, curCol, 0, 1, confirmedLongestIncreasingPath, visitInfos, dependencyInfos);
+                if (confirmed) { // not only confirm this point, but confirm all points dependent to this one ... etc
+                    confirmAllPoints(curRow, curCol, confirmedLongestIncreasingPath, visitInfos, dependencyInfos);
+                }
+            }
+        }
+        int result = Integer.MIN_VALUE;
+        for (int curRow = 0; curRow < rows; curRow++) {
+            for (int curCol = 0; curCol < cols; curCol++) {
+                result = Math.max(result, confirmedLongestIncreasingPath[curRow][curCol]);
+            }
+        }
+        return result;
+    }
+}
