@@ -1,0 +1,19 @@
+/*
+algorithm: 
+use a diff and same to represent whether current paint is diff or same as the previous paint
+*/
+public class Solution {
+    public int numWays(int n, int k) {
+        if (n == 0) {
+            return 0;
+        }
+        int same = 0;
+        int diff = k; // assuming at position 0, all paints are different
+        for (int i = 1; i < n; i++) {
+            int t = diff;
+            diff = (same + diff) * (k - 1); // explanation: no matter whether the previous one is same or different than the previous previous one, we have k - 1 choices to make current one different than previous one
+            same = t; // if current one want to be the same as the previous one, it has only one choice, for all previous one, only if it is different with the previous previous one, current one can have the chance to same with it.
+        }
+        return diff + same;
+    }
+}
