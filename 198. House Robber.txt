@@ -1,0 +1,20 @@
+public class Solution {
+    public int rob(int[] nums) {
+        if (nums == null || nums.length == 0) {
+            return 0;
+        }
+        int[][] maxRob = new int[nums.length][2]; // maxRob[i][0] means don't rob this house, [i][1] means rob this house
+        maxRob[0][0] = 0;
+        maxRob[0][1] = nums[0];
+        if (nums.length == 1) {
+            return maxRob[0][1];
+        }
+        maxRob[1][0] = maxRob[0][1];
+        maxRob[1][1] = nums[1];
+        for (int i = 2; i < nums.length; i++) {
+            maxRob[i][0] = Math.max(maxRob[i - 1][0], maxRob[i - 1][1]);
+            maxRob[i][1] = Math.max(maxRob[i - 2][1], maxRob[i - 1][0]) + nums[i];
+        }
+        return Math.max(maxRob[nums.length - 1][0], maxRob[nums.length - 1][1]);
+    }
+}
