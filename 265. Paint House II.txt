@@ -1,0 +1,47 @@
+import java.util.*;
+public class Solution {
+    public int minCostII(int[][] costs) {
+        if (costs == null || costs.length == 0) {
+            return 0;
+        }
+        int n = costs.length;
+        int k = costs[0].length;
+        if (k == 0) {
+            return 0;
+        }
+        if (k == 1) { // this is needed because in the following code we have the PriorityQueue part which requires k >= 2
+            if (n == 1) {
+                return costs[n - 1][k - 1];
+            }
+            return 0; // there is no way to make adjacent different color if there is only one color
+        }
+        
+        int[][] dpMinCost = new int[n][k];
+        for (int j = 0; j < k; j++) {
+            dpMinCost[0][j] = costs[0][j];
+        }
+        
+        for (int i = 1; i < costs.length; i++) {
+            // firstly we get two minimum values of dpMinCost[i - 1][:] (note that if there are same mins, we put both into the result), so that we can directly take it instead of search every time
+            PriorityQueue<Integer> queue = new PriorityQueue<>();
+            for (int j = 0; j < k; j++) {
+                queue.offer(dpMinCost[i - 1][j]);
+            }
+            int minFirst = queue.poll();
+            int minSecond = queue.poll(); // note that their value might be same
+            for (int j = 0; j < k; j++) {
+                if (dpMinCost[i - 1][j] == minFirst) {
+                    dpMinCost[i][j] = minSecond + costs[i][j];
+                } else {
+                    dpMinCost[i][j] = minFirst + costs[i][j];
+                }
+            }
+        }
+        
+        int min = Integer.MAX_VALUE;
+        for (int j = 0; j < k; j++) {
+            min = Math.min(min, dpMinCost[n - 1][j]);
+        }
+        return min;
+    }
+}
