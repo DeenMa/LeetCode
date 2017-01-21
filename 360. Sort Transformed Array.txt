@@ -1,0 +1,65 @@
+/*
+math: -b / (2 * a) is the middle point for the equation, calculate it and then make the middleLeft and middleRight
+algorithm: two pointer
+case 1: a = 0
+1.1 b < 0: calculate from right to left
+1.2 b > 0: calculate from left to right
+1.3 b == 0: print out c all the time
+case 2: a < 0
+left = 0, right = nums.length - 1;
+while (left < right) {
+    if (middleLeft - left <= right - middleRight) {
+        calculate right, then right--;
+    } else {
+        calculate left, then left++;
+    }
+}
+case 3: a > 0
+do the same with the case 2
+finally reverse the list
+can be optimized to one traversal by finding the middleLeft and middleRight first (o(logn)), then going in two directions
+*/
+import java.util.*;
+public class Solution {
+    private int function(int x, int a, int b, int c) {
+        return a * x * x + b * x + c;
+    }
+    
+    public int[] sortTransformedArray(int[] nums, int a, int b, int c) {
+        if (nums == null || nums.length == 0) {
+            return nums;
+        }
+        int[] results = new int[nums.length];
+        if (a == 0) {
+            for (int i = 0; i < nums.length; i++) {
+                if (b >= 0) {
+                    results[i] = function(nums[i], a, b, c);
+                } else {
+                    results[i] = function(nums[nums.length - 1 - i], a, b, c);
+                }
+            }
+        } else {
+            double middle = ((double)(-b)) / ((double) (2 * a));
+            int indexLeft = 0;
+            int indexRight = nums.length - 1;
+            int index = 0;
+            while (indexLeft <= indexRight) {
+                if (middle - ((double)(nums[indexLeft])) >= ((double)(nums[indexRight])) - middle) {
+                    results[index++] = function(nums[indexLeft++], a, b, c);
+                } else {
+                    results[index++] = function(nums[indexRight--], a, b, c);
+                }
+            }
+            
+            // note that if a > 0, this is a descending order array, reverse it
+            if (a > 0) {
+                for (int i = 0, j = nums.length - 1; i < j; i++, j--) {
+                    int temp = results[i];
+                    results[i] = results[j];
+                    results[j] = temp;
+                }
+            }
+        }
+        return results;
+    }
+}
