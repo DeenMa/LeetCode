@@ -1,0 +1,32 @@
+import java.util.*;
+public class Solution {
+    private int getDigit(int value, int residue) {
+        List<Integer> list = new ArrayList<>();
+        while (value != 0) {
+            list.add(0, value % 10); // 1, 0
+            value /= 10;
+        }
+        return list.get(residue);
+    }    
+    
+    public int findNthDigit(int n) {
+        int[] digitChart = new int[8];
+        for (int i = 0; i < 8; i++) {
+            digitChart[i] = 9 * (i + 1) * (int)Math.pow((double)10, (double)i);
+        }
+        int curBit = 1;
+        while (curBit - 1 < digitChart.length) {
+            if (n <= digitChart[curBit - 1]) {
+                break;
+            }
+            n -= digitChart[curBit - 1];
+            curBit++;
+        }
+        n--; // in order to adapt to / and % operations
+        int startValue = (int)Math.pow((double)10, (double)(curBit - 1));
+        int shift = n / curBit;
+        int residue = n % curBit;
+        int finalValue = startValue + shift; // 10
+        return getDigit(finalValue, residue); // 10, 1
+    }
+}
