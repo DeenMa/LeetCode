@@ -1,0 +1,68 @@
+import java.util.*;
+public class Solution {
+    private void getResults(List<Integer> results, int curResult, int maxIndex, int curIndex, int curLeft, int maxAllowed) {
+        if (curResult > maxAllowed) {
+            return;
+        }
+        if (curLeft == 0) {
+            results.add(curResult);
+            return;
+        }
+        if (curIndex == maxIndex && curLeft != 0) {
+            return;
+        }
+        
+        getResults(results, curResult, maxIndex, curIndex + 1, curLeft, maxAllowed); // do not choose the current one
+        int curHour = (int)Math.pow((double)2, (double)curIndex);
+        getResults(results, curResult + curHour, maxIndex, curIndex + 1, curLeft - 1, maxAllowed);
+    }
+    
+    private List<Integer> getHours(int num) {
+        List<Integer> results = new ArrayList<>();
+        if (num > 4) {
+            return results;
+        }
+        int curResult = 0;
+        getResults(results, curResult, 4, 0, num, 11);
+        return results;
+    }
+    
+    private List<Integer> getMinutes(int num) {
+        List<Integer> results = new ArrayList<>();
+        if (num > 6) {
+            return results;
+        }
+        int curResult = 0;
+        getResults(results, curResult, 6, 0, num, 59);
+        return results;
+    }
+    
+    private List<String> generateTime(List<Integer> hours, List<Integer> minutes) {
+        List<String> results = new ArrayList<>();
+        for (int i = 0; i < hours.size(); i++) {
+            for (int j = 0; j < minutes.size(); j++) {
+                int curHour = hours.get(i);
+                int curMinute = minutes.get(j);
+                StringBuilder sb = new StringBuilder();
+                sb.append(curHour).append(":");
+                if (curMinute < 10) {
+                    sb.append("0");
+                }
+                sb.append(curMinute);
+                results.add(sb.toString());
+            }
+        }
+        return results;
+    }
+    
+    public List<String> readBinaryWatch(int num) {
+        List<String> results = new ArrayList<>();
+        for (int i = 0; i <= num; i++) {
+            List<Integer> hours = getHours(i);
+            List<Integer> minutes = getMinutes(num - i);
+            List<String> curResult = generateTime(hours, minutes);
+            results.addAll(curResult);
+        }
+        return results;
+    }
+}
