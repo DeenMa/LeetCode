@@ -1,0 +1,38 @@
+/*
+algorithm:
+note that for a number with k digits, there are 9 * 10 ^ (k - 1) digits for all numbers that has k digits
+so, start with k = 1, then check until current one is larger than n
+then n -= 9 * 10 ^ (k - 1)
+when it is equal or less, then break
+then n / k  to see what is the exact number and n % k to see what is the digit inside
+*/
+import java.util.*;
+public class Solution {
+    private int getDigit(int value, int residue) {
+        List<Integer> list = new ArrayList<>();
+        while (value != 0) {
+            list.add(0, value % 10); // 1, 0
+            value /= 10;
+        }
+        return list.get(residue);
+    }
+    
+    public int findNthDigit(int n) {
+        int k = 1; // k = 1
+        while (true) {
+            long allDigitsWithKLength = 9 * k * (long)Math.pow((double)10, (double)(k - 1)); // this might cause overflow
+            if ((long)n <= allDigitsWithKLength) {
+                break;
+            }
+            n -= allDigitsWithKLength;
+            k++; // 2
+            System.out.println("now k is " + k + " and n has " + n + " left");
+        }
+        int startValue = (int)Math.pow((double)10, (double)(k - 1)); // 10
+        int shift = (n - 1) / k; // 0
+        int residue = (n - 1) % k; // 1
+        int finalValue = startValue + shift; // 10
+        System.out.println("we will find " + finalValue + " with the digit " + residue);
+        return getDigit(finalValue, residue); // 10, 1
+    }
+}
