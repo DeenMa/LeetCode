@@ -1,0 +1,78 @@
+/*
+algorithm: dfs and trie
+build a trie first, to reduce the space complexity and search time complexity from o(length of the word) to o(n) - for each item in the dictionary
+then do dfs - search each point in the board, if found a string then add; note that when we found a string, we shall not return but still need to continue searching
+*/
+public class Solution {
+    private int numRows;
+    private int numCols;
+    
+    private class TrieNode {
+        char letter;
+        boolean end;
+        HashMap<Character, TrieNode> children;
+        
+        public TrieNode(char c) {
+            letter = c;
+            end = false;
+            children = new HashMap<>();
+        }
+    }
+    
+    private TrieNode generateTrie(String[] words) {
+        TrieNode root = new TrieNode('#');
+        for (String curWord : words) {
+            TrieNode cur = root;
+            for (int i = 0; i < curWord.length(); i++) {
+                char c = curWord.charAt(i);
+                if (!cur.children.containsKey(c)) {
+                    TrieNode nxt = new TrieNode(c);
+                    cur.children.put(c, nxt);
+                }
+                cur = cur.children.get(c);
+            }
+            cur.end = true;
+        }
+        return root;
+    }
+    
+    private void checkWords(List<String> results, char[][] board, TrieNode tn, int curRow, int curCol, String curString) {
+        if (curRow < 0 || curRow >= numRows || curCol < 0 || curCol >= numCols || board[curRow][curCol] == '0' || !tn.children.containsKey(board[curRow][curCol])) {
+            return;
+        }
+        // another case of true
+        TrieNode tnOld = tn;
+        tn = tn.children.get(board[curRow][curCol]);
+        String newString = curString + board[curRow][curCol];
+        if (tn.end) {
+            if (!results.contains(newString)) {
+                results.add(newString);
+            }
+        }
+        char temp = board[curRow][curCol];
+        board[curRow][curCol] = '0'; // using this to mark all visited nodes
+        checkWords(results, board, tn, curRow - 1, curCol, newString);
+        checkWords(results, board, tn, curRow + 1, curCol, newString);
+        checkWords(results, board, tn, curRow, curCol - 1, newString);
+        checkWords(results, board, tn, curRow, curCol + 1, newString);
+        board[curRow][curCol] = temp;
+        tn = tnOld;
+    }
+    
+    public List<String> findWords(char[][] board, String[] words) {
+        List<String> results = new ArrayList<>();
+        if (board == null || board.length == 0 || board[0].length == 0 || words == null || words.length == 0) {
+            return results;
+        }
+        numRows = board.length;
+        numCols = board[0].length;
+        
+        TrieNode root = generateTrie(words);
+        for (int curRow = 0; curRow < numRows; curRow++) {
+            for (int curCol = 0; curCol < numCols; curCol++) {
+                checkWords(results, board, root, curRow, curCol, "");
+            }
+        }
+        return results;
+    }
+}
