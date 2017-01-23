@@ -1,0 +1,37 @@
+/*
+algorithm:
+1. sort the array descending
+2. check from left to right, to find the last value >= index (in the code below i am finding the first item that value < index)
+3. if (value == index) return value; else return index + 1
+*/
+public class Solution {
+    private void reverse(int[] nums) {
+        int left = 0;
+        int right = nums.length - 1;
+        while (left < right) {
+            int temp = nums[left];
+            nums[left] = nums[right];
+            nums[right] = temp;
+            left++;
+            right--;
+        }
+    }
+    
+    public int hIndex(int[] citations) {
+        if (citations == null || citations.length == 0) {
+            return 0;
+        }
+        Arrays.sort(citations);
+        reverse(citations);
+        if (citations[0] == 0) {
+            return 0;
+        }
+        for (int i = 1; i < citations.length; i++) {
+            // 6,5,3,2,1
+            if ((citations[i] < (i + 1)) && (citations[i - 1] >= i)) {
+                return i;
+            }
+        }
+        return citations.length;
+    }
+}
