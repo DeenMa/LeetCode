@@ -1,0 +1,49 @@
+/*
+algorithm: 
+use hashset to store all shifted strings
+for each items inside strings, we firstly calculate the string if it is shifted back to "a[something]" (starts with 'a'), then check the hashset to see whether it appeared before
+*/
+import java.util.*;
+public class Solution {
+    private String shiftString(String original) {
+        if (original == null || original.length() == 0) {
+            return original;
+        }
+        int shift = original.charAt(0) - 'a';
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < original.length(); i++) {
+            char cur = original.charAt(i);
+            char nxt = (char)((int)cur - shift);
+            if (nxt < 'a') {
+                nxt += 26;
+            }
+            sb.append(nxt);
+        }
+        return sb.toString();
+    }
+    
+    public List<List<String>> groupStrings(String[] strings) {
+        List<List<String>> results = new ArrayList<>();
+        if (strings == null || strings.length == 0) {
+            return results;
+        }
+        HashMap<String, List<String>> map = new HashMap<>();
+        for (String curString : strings) {
+            String shiftedString = shiftString(curString);
+            if (!map.containsKey(shiftedString)) {
+                List<String> list = new ArrayList<>();
+                list.add(curString);
+                map.put(shiftedString, list);
+            } else {
+                List<String> list = map.get(shiftedString);
+                list.add(curString);
+            }
+        }
+        Iterator<String> i = map.keySet().iterator();
+        while (i.hasNext()) {
+            String key = i.next();
+            results.add(map.get(key));
+        }
+        return results;
+    }
+}
