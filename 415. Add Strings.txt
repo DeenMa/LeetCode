@@ -1,0 +1,79 @@
+/*
+algorithm:
+1. two pointers, one at the end of num1, another end of num2
+2. using an array of integers, storing the value after sum
+3. get the final string from the array of integers
+
+2. add:
+carry = 0;
+while (two pointers are not null) {
+    int value = num1[i] + num2[j] + carry
+    carry = value / 10;
+    value = value % 10;
+    i--;
+    j--;
+}
+if one of the pointer reached start:
+while (another pointer is not null) {
+    int value = num[i] + carry;
+    carry = value / 10;
+    value = value % 10
+    i--;
+}
+if carry is not zero, add it
+finally get the string from array
+*/
+import java.util.*;
+public class Solution {
+    private int getInt(char c) {
+        return c - '0';
+    }
+    
+    public String addStrings(String num1, String num2) {
+        if (num1 == null && num2 == null) {
+            return null;
+        }
+        if (num1 == null) {
+            return num2;
+        }
+        if (num2 == null) {
+            return num1;
+        }
+        
+        List<Integer> list = new ArrayList<>(); // this stores summation, note that this is in reverse order
+        int carry = 0;
+        int i = num1.length() - 1;
+        int j = num2.length() - 1;
+        while (i > -1 && j > -1) {
+            int value = getInt(num1.charAt(i)) + getInt(num2.charAt(j)) + carry;
+            carry = value / 10;
+            list.add(value % 10);
+            i--;
+            j--;
+        }
+        
+        String num = null;
+        if (i != -1 || j != -1) {
+            if (i == -1) {
+                num = num2;
+                i = j;
+            } else {
+                num = num1;
+            }
+            while (i > -1) {
+                int value = getInt(num.charAt(i)) + carry;
+                carry = value / 10;
+                list.add(value % 10);
+                i--;
+            }
+        }
+        if (carry > 0) {
+            list.add(carry);
+        }
+        StringBuilder result = new StringBuilder();
+        for (i = list.size() - 1; i > -1; i--) {
+            result.append(list.get(i));
+        }
+        return result.toString();
+    }
+}
