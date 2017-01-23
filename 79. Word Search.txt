@@ -1,0 +1,50 @@
+/*
+algorithm: dfs
+*/
+public class Solution {
+    private int numRows;
+    private int numCols;
+    
+    private boolean find(char[][] board, int curRow, int curCol, String word, int index) {
+        if (curRow < 0 || curRow >= numRows || curCol < 0 || curCol >= numCols || visited[curRow][curCol] == true || board[curRow][curCol] != word.charAt(index)) {
+            return false;
+        }
+        if (index == word.length() - 1) {
+            return true;
+        }
+        board[curRow][curCol] = '#';
+        if (find(board, visited, curRow - 1, curCol, word, index + 1) == true) {
+            return true;
+        }
+        if (find(board, visited, curRow + 1, curCol, word, index + 1) == true) {
+            return true;
+        }
+        if (find(board, visited, curRow, curCol - 1, word, index + 1) == true) {
+            return true;
+        }
+        if (find(board, visited, curRow, curCol + 1, word, index + 1) == true) {
+            return true;
+        }
+        board[curRow][curCol] = word.charAt(index);
+        return false;
+    }
+    
+    public boolean exist(char[][] board, String word) {
+        if (board == null || board.length == 0 || board[0].length == 0 || word == null) {
+            return false;
+        }
+        if (word.length() == 0) {
+            return true;
+        }
+        numRows = board.length;
+        numCols = board[0].length;
+        for (int curRow = 0; curRow < numRows; curRow++) {
+            for (int curCol = 0; curCol < numCols; curCol++) {
+                if (find(board, curRow, curCol, word, 0) == true) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+}
