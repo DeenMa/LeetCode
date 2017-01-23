@@ -1,0 +1,59 @@
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) { val = x; }
+ * }
+ */
+/*
+algorithm:
+1. reverse first
+2. add one to the front
+3. while current one is 10, make it 0 and add it to the next
+4. reverse back
+*/
+public class Solution {
+    private ListNode reverse(ListNode head) {
+        ListNode pre = null;
+        ListNode cur = head;
+        while (cur != null) {
+            ListNode nxt = cur.next;
+            cur.next = pre;
+            pre = cur;
+            cur = nxt;
+        }
+        return pre;
+    }
+    
+    private void addOne(ListNode head) {
+        int addOn = 1; // we add one at the very first, so make it 1
+        ListNode cur = head;
+        ListNode tail = null;
+        cur.val += addOn;
+        while (cur != null && cur.val == 10) {
+            addOn = 1;
+            cur.val = 0;
+            if (cur.next == null) {
+                tail = cur;
+            }
+            cur = cur.next;
+            if (cur != null) {
+                cur.val += addOn;
+            }
+        }
+        if (cur == null) {
+            ListNode newTail = new ListNode(addOn);
+            tail.next = newTail;
+        }
+    }
+    
+    public ListNode plusOne(ListNode head) {
+        if (head == null) {
+            return null;
+        }
+        ListNode newHead = reverse(head);
+        addOne(newHead);
+        return reverse(newHead);
+    }
+}
