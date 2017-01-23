@@ -1,0 +1,32 @@
+import java.util.*;
+public class Solution {
+    private boolean noCommonLetter(String w1, String w2) {
+        HashSet<Character> set = new HashSet<>();
+        for (int i = 0; i < w1.length(); i++) {
+            if (!set.contains(w1.charAt(i))) {
+                set.add(w1.charAt(i));
+            }
+        }
+        for (int j = 0; j < w2.length(); j++) {
+            if (set.contains(w2.charAt(j))) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    public int maxProduct(String[] words) {
+        if (words == null || words.length < 2) {
+            return 0;
+        }
+        int result = 0;
+        for (int i = 0; i < words.length - 1; i++) {
+            for (int j = i + 1; j < words.length; j++) {
+                if (noCommonLetter(words[i], words[j])) {
+                    result = Math.max(result, words[i].length() * words[j].length());
+                }
+            }
+        }
+        return result;
+    }
+}
