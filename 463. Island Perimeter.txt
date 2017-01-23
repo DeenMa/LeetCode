@@ -1,0 +1,53 @@
+public class Solution {
+    private int numRows;
+    private int numCols;
+    
+    private int getConnections(int[][] grid, int curRow, int curCol) {
+        int result = 0;
+        if (curRow > 0 && grid[curRow - 1][curCol] > 0) {
+            result++;
+        }
+        if (curRow < numRows - 1 && grid[curRow + 1][curCol] > 0) {
+            result++;
+        }
+        if (curCol > 0 && grid[curRow][curCol - 1] > 0) {
+            result++;
+        }
+        if (curCol < numCols - 1 && grid[curRow][curCol + 1] > 0) {
+            result++;
+        }
+        return result;
+    }
+    
+    private int searchIsland(int[][] grid, int curRow, int curCol, int countPerimeter) {
+        if (curRow < 0 || curRow >= numRows || curCol < 0 || curCol >= numCols || grid[curRow][curCol] != 1) {
+            return countPerimeter;
+        }
+        countPerimeter += 4 - getConnections(grid, curRow, curCol);
+        System.out.println("currently on point " + curRow + ", " + curCol + ". grid value is " + grid[curRow][curCol] + ", and countPerimeter is " + countPerimeter);
+        grid[curRow][curCol] = 2;
+        countPerimeter = searchIsland(grid, curRow - 1, curCol, countPerimeter);
+        countPerimeter = searchIsland(grid, curRow + 1, curCol, countPerimeter);
+        countPerimeter = searchIsland(grid, curRow, curCol - 1, countPerimeter);
+        countPerimeter = searchIsland(grid, curRow, curCol + 1, countPerimeter);
+        return countPerimeter;
+    }
+    
+    public int islandPerimeter(int[][] grid) {
+        if (grid == null || grid.length == 0 || grid[0].length == 0) {
+            return 0;
+        }
+        numRows = grid.length;
+        numCols = grid[0].length;
+        int countPerimeter = 0;
+        for (int curRow = 0; curRow < numRows; curRow++) {
+            for (int curCol = 0; curCol < numCols; curCol++) {
+                if (grid[curRow][curCol] == 1) {
+                    countPerimeter = searchIsland(grid, curRow, curCol, countPerimeter);
+                    return countPerimeter; // there is only one island, so we can return here
+                }
+            }
+        }
+        throw new RuntimeException("there suppose to have an island");
+    }
+}
