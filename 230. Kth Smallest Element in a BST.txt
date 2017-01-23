@@ -1,0 +1,37 @@
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+/*
+algorithm: inorder traversal the tree
+*/
+import java.util.*;
+public class Solution {
+    public int kthSmallest(TreeNode root, int k) {
+        if (root == null) {
+            return 0;
+        }
+        Stack<TreeNode> stack = new Stack<>();
+        TreeNode cur = root;
+        int count = 0;
+        while (!stack.empty() || cur != null) {
+            if (cur != null) {
+                stack.push(cur);
+                cur = cur.left;
+            } else {
+                cur = stack.pop();
+                count++;
+                if (count == k) {
+                    return cur.val;
+                }
+                cur = cur.right;
+            }
+        }
+        return 0;
+    }
+}
