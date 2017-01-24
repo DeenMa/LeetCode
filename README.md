@@ -8,3 +8,6 @@ When we need a queue to apart the same char for k distance, the capacity for the
 for example if k = 3, then a string "abcabc"
 when the queue already have "ab" and we cannot add an "a" since it is already inside, but we can add a "c" therefore the queue is "bc", instead of "abc".
 next time if we add an "a", if the queue has "bc", then "a" can be added to the final string, and the queue will be updated to "ca". (if the queue has "abc" then "a" cannot be added, which violate the problem description)
+
+From 409: https://leetcode.com/problems/longest-palindrome/
+for those characters with odd occurances, we need to take its even part, instead of not taking at all
