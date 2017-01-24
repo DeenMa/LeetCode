@@ -1,0 +1,77 @@
+    private class HashQueue { // a queue with o(1) search
+        Set<Character> set;
+        Queue<Character> queue;
+        int size;
+        int capacity;
+        public HashQueue(int c) {
+            set = new HashSet<>();
+            queue = new LinkedList<>();
+            size = 0;
+            capacity = c;
+        }
+        public boolean contains(char c) {
+            return set.contains(c);
+        }
+        public void add(char c) {
+            set.add(c);
+            queue.offer(c);
+            size++;
+            if (size > capacity) {
+                char removed = queue.poll();
+                set.remove(removed);
+                size--;
+            }
+        }
+    }
+    
+    private PriorityQueue<Pair> generatePairs(String str) { // aabbcc
+        HashMap<Character, Integer> chrOcc = new HashMap<>();
+        for (int i = 0; i < str.length(); i++) {
+            if (chrOcc.containsKey(str.charAt(i))) {
+                chrOcc.put(str.charAt(i), chrOcc.get(str.charAt(i)) + 1);
+            } else {
+                chrOcc.put(str.charAt(i), 1);
+            }
+        }//a2b2c2
+        PriorityQueue<Pair> result = new PriorityQueue<>(chrOcc.size(), new Comparator<Pair>() {
+            public int compare(Pair p1, Pair p2) {
+                return p2.occ - p1.occ;
+            }
+        });
+        Iterator<Character> i = chrOcc.keySet().iterator();
+        while (i.hasNext()) {
+            Character c = i.next();
+            result.offer(new Pair(c, chrOcc.get(c)));
+        }
+        return result; // a2b2c2
+    }
+    
+    public String rearrangeString(String str, int k) { // aabbcc 3
+        if (str == null || str.length() == 0 || k < 2) {
+            return str;
+        }
+        PriorityQueue<Pair> pq = generatePairs(str);// a2c2b2
+        HashQueue hq = new HashQueue(k - 1); // NA
+        StringBuilder result = new StringBuilder();
+        while (pq.size() != 0) { // something
+            List<Pair> list = new ArrayList<>(); // store all the pairs that do not meet requirements
+            while (pq.size() != 0 && hq.contains(pq.peek().chr)) {
+                Pair peekPair = pq.poll();
+                list.add(peekPair);
+            }
+            if (pq.size() == 0 && list.size() != 0) { // there exist chars that cannot be placed
+                return "";
+            }
+            Pair peekPair = pq.poll(); // this is what we got - will be added to next : a2
+            result.append(peekPair.chr); // a
+            if (peekPair.occ > 1) {
+                peekPair.occ--;
+                list.add(peekPair); // a1
+            }
+            hq.add(peekPair.chr); // a
+            for (int i = 0; i < list.size(); i++) { // put things back
+                pq.add(list.get(i));
+            }
+        }
+        return result.toString();
+    }    
