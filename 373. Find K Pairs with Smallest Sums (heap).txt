@@ -1,0 +1,37 @@
+/*
+algorithm: 
+build a heap, with all index pairs, the comparator is if the summation is smaller then in front
+everytime poll the first one, get to the result, then its index++, then put back to the heap
+*/
+import java.util.*;
+public class Solution {
+    public List<int[]> kSmallestPairs(int[] nums1, int[] nums2, int k) {
+        List<int[]> results = new ArrayList<>();
+        if (nums1 == null || nums1.length == 0 || nums2 == null || nums2.length == 0 || k < 1) {
+            return results;
+        }
+        PriorityQueue<int[]> heap = new PriorityQueue<>(nums1.length, new Comparator<int[]>() {
+            public int compare(int[] indexes1, int[] indexes2) {
+                return (nums1[indexes1[0]] + nums2[indexes1[1]] - nums1[indexes2[0]] - nums2[indexes2[1]]);
+            }
+        });
+        for (int i = 0; i < nums1.length; i++) {
+            int[] cur = new int[2];
+            cur[0] = i;
+            cur[1] = 0;
+            heap.offer(cur);
+        }
+        while (heap.size() > 0 && results.size() < k) {
+            int[] indexes = heap.poll();
+            int[] values = new int[2];
+            values[0] = nums1[indexes[0]];
+            values[1] = nums2[indexes[1]];
+            results.add(values);
+            indexes[1]++;
+            if (indexes[1] < nums2.length) {
+                heap.offer(indexes);
+            }
+        }
+        return results;
+    }
+}
