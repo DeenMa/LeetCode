@@ -1,0 +1,79 @@
+/*
+algorithm: using a doubly linked list, and a hashmap
+for the linked list, make tail the newest and head the oldest
+and for both head and tail, we have a dummy (because both needs to be changed frequently)
+operations supported: o(1) insert to last, delete anywhere, search
+*/
+import java.util.*;
+public class LRUCache {
+    private class Node {
+        int key;
+        int value;
+        Node prev;
+        Node next;
+        public Node(int k, int v) {
+            key = k;
+            value = v;
+        }
+    }
+    private Node dummyHead;
+    private Node dummyTail;
+    private HashMap<Integer, Node> map;
+    private int capacity;
+    
+    public LRUCache(int capacity) {
+        this.capacity = capacity;
+        map = new HashMap<>();
+        dummyHead = new Node(0, 0);
+        dummyTail = new Node(0, 0);
+        dummyHead.next = dummyTail;
+        dummyTail.prev = dummyHead;
+    }
+    
+    public int get(int key) {
+        if (!map.containsKey(key)) {
+            return -1;
+        }
+        Node cur = map.get(key);
+        int val = cur.value;
+        Node pre = cur.prev;
+        Node nxt = cur.next;
+        pre.next = nxt;
+        nxt.prev = pre;
+        Node tail = dummyTail.prev;
+        tail.next = cur;
+        dummyTail.prev = cur;
+        cur.next = dummyTail;
+        cur.prev = tail;
+        return val;
+    }
+    
+    public void put(int key, int value) {
+        if (map.containsKey(key)) {
+            Node cur = map.get(key);
+            cur.value = value;
+            get(key);
+        } else {
+            if (map.size() == capacity) {
+                Node head = dummyHead.next;
+                dummyHead.next = head.next;
+                head.next.prev = dummyHead;
+                map.remove(head.key);
+            }
+            Node cur = new Node(key, value);
+            Node tail = dummyTail.prev;
+            tail.next = cur;
+            dummyTail.prev = cur;
+            cur.next = dummyTail;
+            cur.prev = tail;
+            map.put(key, cur);
+        }
+    }
+}
+
+/**
+ * Your LRUCache object will be instantiated and called as such:
+ * LRUCache obj = new LRUCache(capacity);
+ * int param_1 = obj.get(key);
+ * obj.put(key,value);
+ */
