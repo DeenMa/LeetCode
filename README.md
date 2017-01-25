@@ -11,3 +11,7 @@ next time if we add an "a", if the queue has "bc", then "a" can be added to the 
 
 From 409: https://leetcode.com/problems/longest-palindrome/
 for those characters with odd occurances, we need to take its even part, instead of not taking at all
+
+From 146: https://leetcode.com/problems/lru-cache/
+note that we can make head and tail dummy, especially when both of them are frequently changing, such as LRU cache
+dummyhead is used when head is always changing, if we need tail information but tail is always updating, we can also consider to create a dummy tail

@@ -1,0 +1,104 @@
+/*
+algorithm:
+still hashmap and linked list
+hashmap to store the key and node pair
+linked list support random delete, and insert
+note that what differs from LRU is, here when we insert a node, we dont insert it into the tail, but based on the occurance, insert it into proper position
+note that in worse case, get and put operation will take o(n) since there might be n items that has the same frequency. if we need to get the LRU item, when it will be put back to the list, it will traverse n items to find the proper position
+*/
+import java.util.*;
+public class LFUCache {
+    private class Node {
+        int key;
+        int value;
+        int occurance;
+        Node prev;
+        Node next;
+        
+        public Node(int k, int v) {
+            key = k;
+            value = v;
+            occurance = 1;
+        }
+    }
+    
+    private Node head; // note that this is dummy
+    private Node tail; // note that this is dummy
+    private HashMap<Integer, Node> map;
+    private int capacity;
+    
+    public LFUCache(int capacity) {
+        head = new Node(0, 0);
+        tail = new Node(0, 0);
+        head.next = tail;
+        tail.prev = head;
+        map = new HashMap<>();
+        this.capacity = capacity;
+    }
+    
+    public int get(int key) {
+        if (capacity == 0 || !map.containsKey(key)) {
+            return -1;
+        }
+        Node curNode = map.get(key);
+        // remove curNode at current position
+        Node nxtNode = curNode.next; // get this in case in the future we need to insert the curNode, we don't need to start over
+        Node preNode = curNode.prev;
+        preNode.next = nxtNode;
+        nxtNode.prev = preNode;
+        int val = curNode.value;
+        curNode.occurance++;
+        Node n = nxtNode;
+        while (n != tail && n.occurance <= curNode.occurance) { // to make it closest to the tail (among nodes which has the same occurance with curNode, so that , since we remove the node from the node closest to head)
+            n = n.next;
+        }
+        // settle down curNode
+        nxtNode = n;
+        preNode = n.prev;
+        preNode.next = curNode;
+        nxtNode.prev = curNode;
+        curNode.next = nxtNode;
+        curNode.prev = preNode;
+        return val;
+    }
+    
+    public void put(int key, int value) {
+        if (capacity == 0) { // no way to put
+            return;
+        }
+        if (map.containsKey(key)) {
+            Node curNode = map.get(key);
+            curNode.value = value;
+            get(key);
+        } else {
+            if (map.size() == capacity) { // remove the first node
+                Node curNode = head.next;
+                Node nxtNode = curNode.next;
+                head.next = nxtNode;
+                nxtNode.prev = head;
+                map.remove(curNode.key);
+            }
+            // add current node to proper position
+            Node curNode = new Node(key, value);
+            Node n = head.next;
+            while (n != tail && n.occurance <= curNode.occurance) {
+                n = n.next;
+            }
+            // settle down curNode
+            Node nxtNode = n;
+            Node preNode = n.prev;
+            preNode.next = curNode;
+            nxtNode.prev = curNode;
+            curNode.next = nxtNode;
+            curNode.prev = preNode;
+            map.put(key, curNode);
+        }
+    }
+}
+
+/**
+ * Your LFUCache object will be instantiated and called as such:
+ * LFUCache obj = new LFUCache(capacity);
+ * int param_1 = obj.get(key);
+ * obj.put(key,value);
+ */
