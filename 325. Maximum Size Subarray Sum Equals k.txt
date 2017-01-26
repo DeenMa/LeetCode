@@ -1,0 +1,25 @@
+import java.util.*;
+public class Solution {
+    public int maxSubArrayLen(int[] nums, int k) {
+        if (nums == null || nums.length == 0) {
+            return 0;
+        }
+        int[] sums = new int[nums.length + 1];
+        sums[0] = 0;
+        for (int i = 0; i < nums.length; i++) {
+            sums[i + 1] = sums[i] + nums[i];
+        }
+        HashMap<Integer, Integer> map = new HashMap<>();
+        for (int i = 0; i < sums.length; i++) {
+            map.put(sums[i], i);
+        }
+        int max = 0;
+        for (int i = 0; i < sums.length; i++) {
+            int curVal = sums[i];
+            if (map.containsKey(curVal + k) && map.get(curVal + k) > i) {
+                max = Math.max(max, map.get(curVal + k) - i);
+            }
+        }
+        return max;
+    }
+}
