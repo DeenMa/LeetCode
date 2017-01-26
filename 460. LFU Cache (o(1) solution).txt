@@ -1,0 +1,166 @@
+/*
+algorithm:
+class frequency node: this stores the frequency, and attach the list of each key node with head, content, and tail
+class key node: this stores key and value pair
+hashmap of frequency and frequency node, and key and key node
+*/
+// TODO: make FrequencyNode and KeyNode extend DoublyLinkedListNode and refactor code
+import java.util.*;
+public class LFUCache {
+    private class Node {
+        Node prev;
+        Node next;
+    }
+    
+    private class FrequencyNode extends Node {
+        int frequency;
+        KeyNode head;
+        KeyNode tail;
+
+        public FrequencyNode(int f) {
+            frequency = f;
+            head = new KeyNode(0, 0);
+            tail = new KeyNode(0, 0);
+            head.next = tail;
+            tail.prev = head;
+        }
+        
+        public boolean isEmpty() {
+            return head.next == tail && tail.prev == head;
+        }
+    }
+    
+    private class KeyNode extends Node {
+        int key;
+        int value;
+        int frequency;
+
+        public KeyNode(int k, int v) {
+            key = k;
+            value = v;
+            frequency = 1;
+        }
+    }
+    
+    private FrequencyNode head; // dummy
+    private FrequencyNode tail; // dummy
+    private int capacity;
+    private HashMap<Integer, KeyNode> mapKeys;
+    private HashMap<Integer, FrequencyNode> mapFrequencies;
+
+    public LFUCache(int capacity) {
+        mapKeys = new HashMap<>();
+        mapFrequencies = new HashMap<>();
+        this.capacity = capacity;
+        head = new FrequencyNode(0);
+        tail = new FrequencyNode(0);
+        head.next = tail;
+        tail.prev = head;
+    }
+    
+    private void removeCurrentNode(Node n) {
+        Node pre = n.prev;
+        Node nxt = n.next;
+        pre.next = nxt;
+        nxt.prev = pre;
+    }
+    
+
+    // remove the current key from the list, and return the frequency node next to current one (no matter whether current frequent node is removed or not)
+    private FrequencyNode removeCurrentKeyInList(int key) { // it only involves list operation, no map operation
+        KeyNode kn = mapKeys.get(key);
+        int frequency = kn.frequency;
+        FrequencyNode fn = mapFrequencies.get(frequency);
+        removeCurrentNode(kn);
+        FrequencyNode nxt = (FrequencyNode) fn.next;
+        if (fn.isEmpty()) {
+            removeCurrentNode(fn);
+            mapFrequencies.remove(fn.frequency);
+        }
+        return nxt;
+    }
+    
+    private void connect(Node pre, Node cur, Node nxt) {
+        pre.next = cur;
+        nxt.prev = cur;
+        cur.prev = pre;
+        cur.next = nxt;
+    }
+    
+    private void putCurrentKeyInList(int key, FrequencyNode fn) {
+        KeyNode kn = mapKeys.get(key);
+        FrequencyNode curFN = fn;
+        if (fn.frequency != kn.frequency) { // we need to add a frequency on the left of fn
+            FrequencyNode pre = new FrequencyNode(kn.frequency);
+            mapFrequencies.put(kn.frequency, pre);
+            connect(fn.prev, pre, fn);
+            curFN = pre;
+        }
+        KeyNode tailNode = curFN.tail;
+        // add kn before tailNode
+        KeyNode preKN = (KeyNode) tailNode.prev;
+        connect(preKN, kn, tailNode);
+    }
+    
+    private KeyNode removeLeastUsedAndOldestKey() {
+        FrequencyNode fn = (FrequencyNode) head.next;
+        KeyNode kn = (KeyNode) fn.head.next;
+        removeCurrentNode(kn);
+        if (fn.isEmpty()) {
+            removeCurrentNode(fn);
+            mapFrequencies.remove(fn.frequency);
+        }
+        return kn;
+    }
+    
+    private void addNewKeyToList(KeyNode kn) {
+        FrequencyNode fn;
+        if (mapFrequencies.containsKey(1)) {
+            fn = mapFrequencies.get(1);
+        } else {
+            fn = new FrequencyNode(1);
+            mapFrequencies.put(1, fn);
+            connect(head, fn, head.next);
+        }
+        KeyNode tail = fn.tail;
+        connect(tail.prev, kn, tail);
+    }
+    
+    public int get(int key) {
+        if (capacity == 0 || !mapKeys.containsKey(key)) {
+            return -1;
+        }
+        FrequencyNode fn = removeCurrentKeyInList(key); // note that fn.frequency might not be equal to the key.frequency
+        KeyNode kn = mapKeys.get(key);
+        int val = kn.value;
+        kn.frequency++;
+        putCurrentKeyInList(key, fn);
+        return val;
+    }
+    
+    public void put(int key, int value) {
+        if (capacity < 1) {
+            return;
+        }
+        if (mapKeys.containsKey(key)) {
+            KeyNode kn = mapKeys.get(key);
+            kn.value = value;
+            get(key);
+        } else {
+            if (mapKeys.size() == capacity) {
+                KeyNode kn = removeLeastUsedAndOldestKey();
+                mapKeys.remove(kn.key);
+            }
+            KeyNode kn = new KeyNode(key, value);
+            addNewKeyToList(kn); // since this one have a frequency of 1, it should always be at very front
+            mapKeys.put(key, kn);
+        }
+    }
+}
+
+/**
+ * Your LFUCache object will be instantiated and called as such:
+ * LFUCache obj = new LFUCache(capacity);
+ * int param_1 = obj.get(key);
+ * obj.put(key,value);
+ */

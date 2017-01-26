@@ -15,3 +15,21 @@ for those characters with odd occurances, we need to take its even part, instead
 From 146: https://leetcode.com/problems/lru-cache/
 note that we can make head and tail dummy, especially when both of them are frequently changing, such as LRU cache
 dummyhead is used when head is always changing, if we need tail information but tail is always updating, we can also consider to create a dummy tail
+
+From 460: https://leetcode.com/problems/lfu-cache/
+note that if we create two classes FNode and KNode and both of them extends Node, we need to cast when we are retrieving the data from super class. See example below:
+class Node {
+  Node prev;
+  Node next;
+}
+
+class FNode extends Node {
+  int f;
+}
+
+class KNode extends Node {
+  int k;
+}
+
+FNode curF = nxtF.prev; // error: nxtF.prev is a Node, not a FNode
+FNode curF = (FNode) nxtF.prev; // ok
