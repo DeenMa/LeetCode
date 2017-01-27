@@ -1,0 +1,57 @@
+/*
+algorithm: store the non-zero indexes into hashmap<integer, hashset<integer>>
+then simply check the data in hashmap
+*/
+import java.util.*;
+public class Solution {
+    private HashMap<Integer, HashSet<Integer>> getHashMap(int[][] nums, boolean rowIsKey) {
+        HashMap<Integer, HashSet<Integer>> map = new HashMap<>();
+        if (rowIsKey) {
+            for (int i = 0; i < nums.length; i++) {
+                HashSet<Integer> set = new HashSet<>();
+                for (int j = 0; j < nums[0].length; j++) {
+                    if (nums[i][j] != 0) {
+                        set.add(j);
+                    }
+                }
+                map.put(i, set);
+            }
+        } else {
+            for (int j = 0; j < nums[0].length; j++) {
+                HashSet<Integer> set = new HashSet<>();
+                for (int i = 0; i < nums.length; i++) {
+                    if (nums[i][j] != 0) {
+                        set.add(i);
+                    }
+                }
+                map.put(j, set);
+            }
+        }
+        return map;
+    }
+    
+    public int[][] multiply(int[][] A, int[][] B) {
+        if (A == null || A.length == 0 || A[0].length == 0 || B == null || B.length == 0 || B[0].length == 0) {
+            return new int[0][0];
+        }
+        HashMap<Integer, HashSet<Integer>> aMap = getHashMap(A, true);
+        HashMap<Integer, HashSet<Integer>> bMap = getHashMap(B, false);
+        int[][] results = new int[A.length][B[0].length];
+        for (int i = 0; i < results.length; i++) {
+            for (int j = 0; j < results[0].length; j++) {
+                int curResult = 0;
+                HashSet<Integer> setLeft = aMap.get(i);
+                HashSet<Integer> setRight = bMap.get(j);
+                Iterator<Integer> iLeft = setLeft.iterator();
+                while (iLeft.hasNext()) {
+                    int index = iLeft.next();
+                    if (setRight.contains(index)) {
+                        curResult += A[i][index] * B[index][j];
+                    }
+                }
+                results[i][j] = curResult;
+            }
+        }
+        return results;
+    }
+}
