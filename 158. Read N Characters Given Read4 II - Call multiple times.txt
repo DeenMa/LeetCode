@@ -1,0 +1,95 @@
+/* The read4 API is defined in the parent class Reader4.
+      int read4(char[] buf); */
+/*
+algorithm:
+have a prev[] (global) to store all the chars left from last read4
+every time we read, we firstly get the stuff inside prev, to make n == 0 (if prev has longer or equal than n) or clear prev
+then we read(buf, n - prev.length) using the original one
+algorithm for read(buf, n) // does not involve prev[]
+int numRead = 0;
+while (n >= 4) {
+    do a read4(buf);
+    if returned less than 4, then {
+        numRead += returned value
+        copy to buf
+        return numRead
+    } else {
+        numRead += 4;
+        n -= 4;
+        copy to buf
+    }
+}
+// do one for final
+read4(buf)
+min = Math.min(n, returned value)
+if min == n { // that means returned value may have things left
+    get the rest of the data into prev for future use
+}
+numRead += min
+copy to buf
+return numRead
+finally if we are calling the last read4, if n ends earlier than read4, then we need to store the rest of the chars into the prev
+*/
+import java.util.*;
+public class Solution extends Reader4 {
+    /**
+     * @param buf Destination buffer
+     * @param n   Maximum number of characters to read
+     * @return    The number of characters read
+     */
+    private final int READ4_SIZE = 4;
+    private Queue<Character> charsLeft = new LinkedList<>(); // b
+
+    private void copy(char[] buff, char c, int offset) {
+        buff[offset] = c;
+    }
+    
+    private void copy(char[] original, int size, char[] target, int offset) {
+        for (int i = 0; i < size; i++) {
+            target[offset + i] = original[i];
+        }
+    }
+    
+    private void pushToCharsLeft(Queue<Character> charsLeft, char[] original, int index) {
+        charsLeft.offer(original[index]);
+    }
+    
+    // "ab" read(2)
+    public int read(char[] buf, int n) { // assume buff has a size at least n
+        int numRead = 0;
+        while (n != 0 && charsLeft.peek() != null) {
+            char c = charsLeft.poll(); // b
+            copy(buf, c, numRead++); // b
+            n--;
+        }
+        if (n == 0) {
+            return numRead; // 1
+        }
+        char[] buf4;
+        while (n >= READ4_SIZE) {
+            buf4 = new char[READ4_SIZE];
+            int curRead = read4(buf4);
+            if (curRead < READ4_SIZE) { // reached the end of the read4, do not need to update prev
+                copy(buf4, curRead, buf, numRead);
+                numRead += curRead;
+                return numRead;
+            }
+            copy(buf4, curRead, buf, numRead);
+            numRead += curRead;
+            n -= curRead;
+        }
+        buf4 = new char[READ4_SIZE];
+        int curRead = read4(buf4); // curRead = 2
+        int min = Math.min(curRead, n); // 1
+        copy(buf4, min, buf, numRead); // buf4: ab, buf: a
+        numRead += min; // 1
+        if (curRead > min) { // that means we have extra chars not being put into our result, should be put into prev for future use
+            int curIndex = min; // 2
+            while (curIndex < curRead) {
+                pushToCharsLeft(charsLeft, buf4, curIndex); // charsLeft: b
+                curIndex++;
+            }
+        }
+        return numRead; // 1
+    }
+}
