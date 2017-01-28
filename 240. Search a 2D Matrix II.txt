@@ -1,0 +1,23 @@
+/*
+algorithm: using a pointer that moves diagonally, starting at left-bottom corner, if target is bigger then go right, else go up until find or reached end. this is o(n)
+alternative algorithm: check all rows that target might exist, then for each row check. this best case will be o(logn), worse case will be o(nlogn)
+*/
+public class Solution {
+    public boolean searchMatrix(int[][] matrix, int target) {
+        if (matrix == null || matrix.length == 0 || matrix[0].length == 0) {
+            return false;
+        }
+        int curRow = matrix.length - 1;
+        int curCol = 0;
+        while (curRow >= 0 && curCol < matrix[0].length) {
+            if (target < matrix[curRow][curCol]) {
+                curRow--;
+            } else if (target > matrix[curRow][curCol]) {
+                curCol++;
+            } else {
+                return true;
+            }
+        }
+        return false;
+    }
+}
