@@ -1,0 +1,49 @@
+/* The read4 API is defined in the parent class Reader4.
+      int read4(char[] buf); */
+/*
+algorithm:
+numRead = 0;
+while n>= 4
+read4
+if read4 get less than 4 numbers - that means we reached the end of the buf, put the rest into char[] and return numRead += read4 results
+n -= 4;
+numRead += 4;
+now n < 4
+do the last read4, get number of char min(n, read4) and add it to numRead, and then write to char[]
+return numRead
+*/
+public class Solution extends Reader4 {
+    /**
+     * @param buf Destination buffer
+     * @param n   Maximum number of characters to read
+     * @return    The number of characters read
+     */
+    private int READ4_SIZE = 4;
+    
+    private void copy(char[] buf4, int numRead, char buf[], int shift) {
+        for (int i = 0; i < numRead; i++) {
+            buf[shift + i] = buf4[i];
+        }
+    }
+    
+    public int read(char[] buf, int n) {
+        int numRead = 0;
+        char[] buf4;
+        while (n >= READ4_SIZE) {
+            buf4 = new char[READ4_SIZE];
+            int curRead = read4(buf4);
+            copy(buf4, curRead, buf, numRead);
+            numRead += curRead;
+            if (curRead < READ4_SIZE) {
+                return numRead;
+            }
+            n -= READ4_SIZE;
+        }
+        buf4 = new char[READ4_SIZE];
+        int curRead = read4(buf4);
+        int min = Math.min(curRead, n);
+        copy(buf4, min, buf, numRead);
+        numRead += min;
+        return numRead;
+    }
+}
