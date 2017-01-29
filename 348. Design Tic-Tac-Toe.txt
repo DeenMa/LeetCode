@@ -1,0 +1,79 @@
+/*
+algorithm:
+everytime a player plays a chess, firstly check whether the chess appears in expect, if yes, this player wins
+if no, then update the expect by starting at this node, then check its horizontals, verticals, diagonals (4 lines to check), to see whether there is only one left in one direction, if yes, put that one into expect
+*/
+import java.util.*;
+public class TicTacToe {
+    private final int NUM_PLAYERS = 2;
+    
+    int len; // length of a single side, equal to n
+    int[][] board;
+    Set<Integer>[] expect;
+
+    /** Initialize your data structure here. */
+    public TicTacToe(int n) {
+        len = n;
+        board = new int[len][len];
+        expect = new HashSet[NUM_PLAYERS];
+        for (int i = 0; i < NUM_PLAYERS; i++) {
+            expect[i] = new HashSet<>();
+        }
+    }
+    
+    private void check(int[][] board, int rowStart, int colStart, int rowShift, int colShift, int player) {
+        int rowCurrent = rowStart;
+        int colCurrent = colStart;
+        int rowExpected = -1;
+        int colExpected = -1;
+        int numExpected = 0;
+        while (rowCurrent > -1 && rowCurrent < len && colCurrent > -1 && colCurrent < len) {
+            if (board[rowCurrent][colCurrent] == 0) { // empty, could be filled
+                numExpected++;
+                rowExpected = rowCurrent;
+                colExpected = colCurrent;
+                if (numExpected > 1) {
+                    return;
+                }
+            } else if (board[rowCurrent][colCurrent] != player) { // already occupied by another player
+                return;
+            }
+            rowCurrent += rowShift;
+            colCurrent += colShift;
+        }
+        if (numExpected == 1) {
+            expect[player - 1].add(rowExpected * len + colExpected);
+        }
+    }
+    
+    /** Player {player} makes a move at ({row}, {col}).
+        @param row The row of the board.
+        @param col The column of the board.
+        @param player The player, can be either 1 or 2.
+        @return The current winning condition, can be either:
+                0: No one wins.
+                1: Player 1 wins.
+                2: Player 2 wins. */
+    public int move(int row, int col, int player) {
+        int curPoint = row * len + col;
+        if (expect[player - 1].contains(curPoint)) {
+            return player;
+        }
+        board[row][col] = player;
+        check(board, row, 0, 0, 1, player);
+        check(board, 0, col, 1, 0, player);
+        if (row == col) {
+            check(board, 0, 0, 1, 1, player);
+        }
+        if (row + col + 1 == len) {
+            check(board, len - 1, 0, -1, 1, player);
+        }
+        return 0;
+    }
+}
+
+/**
+ * Your TicTacToe object will be instantiated and called as such:
+ * TicTacToe obj = new TicTacToe(n);
+ * int param_1 = obj.move(row,col,player);
+ */

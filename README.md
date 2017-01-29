@@ -33,3 +33,9 @@ class KNode extends Node {
 
 FNode curF = nxtF.prev; // error: nxtF.prev is a Node, not a FNode
 FNode curF = (FNode) nxtF.prev; // ok
+
+From ?: we cannot store a 2-d point into hashset / map, instead, we can make this point 1d and then store. in this way we can search in the future
+HashSet<Pair> set = new HashSet<>();
+set.add(new Pair(1,2));
+boolean b = set.contains(new Pair(1,2)); // this will return false since this Pair(1,2) has a difference address to the Pair(1,2) added to hashset
+
