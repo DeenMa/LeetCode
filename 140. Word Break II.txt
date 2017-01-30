@@ -1,0 +1,91 @@
+/*
+algorithm: using dynamic programming and backtracing
+dp[i] is a list<list<strings>>
+then for each position in s check all previous non-null dps, and the gap. if the gap is a word, copy previous dp, append current word and store to current position
+until the end
+----can be optimized to a queue of size of the max length of the word
+*/
+import java.util.*;
+public class Solution {
+    private int getMaxWordLength(List<String> wordDict) {
+        int maxWordLength = 0;
+        Iterator<String> i = wordDict.iterator();
+        while (i.hasNext()) {
+            String s = i.next();
+            maxWordLength = Math.max(s.length(), maxWordLength);
+        }
+        return maxWordLength;
+    }
+    
+    private List<List<Integer>> checkAllPreviousItems(String s, List<String> wordDict, List<List<Integer>>[] dp, int endIndex) {
+        List<List<Integer>> results = new ArrayList<>();
+        if (wordDict.contains(s.substring(0, endIndex + 2))) {
+            List<Integer> cur = new ArrayList<>();
+            cur.add(endIndex + 1);
+            results.add(cur);
+        }
+        List<List<Integer>> restStrings = checkAllPreviousItems(s, wordDict, dp, 0, endIndex);
+        results.addAll(restStrings);
+        return results;
+    }
+    
+    private List<List<Integer>> checkAllPreviousItems(String s, List<String> wordDict, List<List<Integer>>[] dp, int startIndex, int endIndex) {
+        List<List<Integer>> results = new ArrayList<>();
+        for (int i = startIndex; i <= endIndex; i++) {
+            if (dp[i].size() == 0) {
+                continue;
+            }
+            if (!wordDict.contains(s.substring(i + 1, endIndex + 2))) {
+                continue;
+            }
+            List<List<Integer>> prevStrings = dp[i];
+            List<List<Integer>> currStrings = new ArrayList<>();
+            for (List<Integer> strings : prevStrings) {
+                List<Integer> newStrings = new ArrayList<>();
+                for (Integer string : strings) {
+                    newStrings.add(string);
+                }
+                currStrings.add(newStrings);
+            }
+            String currString = s.substring(i + 1, endIndex + 2);
+            for (int j = 0; j < currStrings.size(); j++) {
+                currStrings.get(j).add(endIndex + 1);
+            }
+            results.addAll(currStrings);
+        }
+        return results;
+    }
+    
+    private List<String> generateSentences(String s, List<List<Integer>> strings) {
+        List<String> results = new ArrayList<>();
+        for (int i = 0; i < strings.size(); i++) {
+            List<Integer> curStrings = strings.get(i);
+            StringBuilder curResult = new StringBuilder();
+            for (int j = 0; j < curStrings.size(); j++) {
+                if (j == 0) {
+                    curResult.append(s.substring(0, curStrings.get(j) + 1));
+                } else {
+                    curResult.append(s.substring(curStrings.get(j - 1) + 1, curStrings.get(j) + 1));
+                }
+                if (j != curStrings.size() - 1) {
+                    curResult.append(' ');
+                }
+            }
+            results.add(curResult.toString());
+        }
+        return results;
+    }
+    
+    public List<String> wordBreak(String s, List<String> wordDict) { // "catsanddog", ["cat", "cats", "and", "sand", "dog"]
+        int maxLength = getMaxWordLength(wordDict); // 4
+        List<List<Integer>>[] dp = new ArrayList[s.length()]; // storing the end index of each word - can be optimized
+        for (int i = 0; i < dp.length; i++) { // 0
+            if (i < maxLength) {
+                dp[i] = checkAllPreviousItems(s, wordDict, dp, i - 1);
+            } else {
+                dp[i] = checkAllPreviousItems(s, wordDict, dp, i - maxLength, i - 1);
+            }
+        }
+        return generateSentences(s, dp[dp.length - 1]);
+    }
+}
