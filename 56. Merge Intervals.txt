@@ -1,0 +1,70 @@
+/**
+ * Definition for an interval.
+ * public class Interval {
+ *     int start;
+ *     int end;
+ *     Interval() { start = 0; end = 0; }
+ *     Interval(int s, int e) { start = s; end = e; }
+ * }
+ */
+import java.util.*;
+public class Solution {
+    private class NodeInfo {
+        int position;
+        int info; // 1 means a start point, -1 means an end point
+        public NodeInfo(int p, int i) {
+            position = p;
+            info = i;
+        }
+    }
+    
+    private List<NodeInfo> collectNodeInfo(List<Interval> intervals) {
+        List<NodeInfo> infos = new ArrayList<>();
+        for (Interval curInterval : intervals) {
+            NodeInfo ni = new NodeInfo(curInterval.start, 1);
+            infos.add(ni);
+            ni = new NodeInfo(curInterval.end, -1);
+            infos.add(ni);
+        }
+        return infos;
+    }
+    
+    private void sortInfos(List<NodeInfo> infos) {
+        Collections.sort(infos, new Comparator<NodeInfo>() {
+            public int compare(NodeInfo ni1, NodeInfo ni2) {
+                if (ni1.position != ni2.position) {
+                    return ni1.position - ni2.position;
+                }
+                return ni2.info - ni1.info; // start should be in front
+            }
+        });
+    }
+    
+    private List<Interval> generateNewIntervals(List<NodeInfo> infos) {
+        List<Interval> results = new ArrayList<>();
+        int mark = 0;
+        Integer start = null;
+        Integer end = null;
+        for (NodeInfo curInfo : infos) {
+            mark += curInfo.info;
+            if (start == null && mark == 1) {
+                start = curInfo.position;
+            } else if (start != null && mark == 0) {
+                end = curInfo.position;
+                results.add(new Interval(start, end));
+                start = null;
+                end = null;
+            }
+        }
+        return results;
+    }
+    
+    public List<Interval> merge(List<Interval> intervals) {
+        if (intervals == null || intervals.size() < 2) {
+            return intervals;
+        }
+        List<NodeInfo> infos = collectNodeInfo(intervals);
+        sortInfos(infos);
+        return generateNewIntervals(infos);
+    }
+}

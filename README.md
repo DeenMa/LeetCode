@@ -49,3 +49,6 @@ String is not a primitive java type, but that does not mean that system will ass
   String s1 = s0;
   s1 = "1";
   System.out.println(s0); // "0", keep unchanged
+
+From 56: https://leetcode.com/problems/merge-intervals/
+note that when we are doing Merge Intervals, or Skyscraper problem which involves the start and end of a matrix, we may consider to break the matrix into line segments consisting (index, info) which info == 1 is the start of the matrix and info == -1 means the end of the matrix. this will somewhat solve some problems.
