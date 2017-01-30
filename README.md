@@ -52,3 +52,14 @@ String is not a primitive java type, but that does not mean that system will ass
 
 From 56: https://leetcode.com/problems/merge-intervals/
 note that when we are doing Merge Intervals, or Skyscraper problem which involves the start and end of a matrix, we may consider to break the matrix into line segments consisting (index, info) which info == 1 is the start of the matrix and info == -1 means the end of the matrix. this will somewhat solve some problems.
+
+From 382: https://leetcode.com/problems/linked-list-random-node/
+algorithm of reservior sampling of s[n] - get a random value from n values
+1. define a size k array (k is small enough) - r[k]
+2. for i = 0 : n - 1 (while not end)
+if (i < k) r[k] = s[i]
+else:
+    generate a random j = value from 0 : i
+    if (int)j < k:
+        r[j] = s[i];
+finally get a random one from r[0 : k]

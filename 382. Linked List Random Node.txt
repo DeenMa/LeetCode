@@ -1,0 +1,58 @@
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) { val = x; }
+ * }
+ */
+/*
+algorithm of reservior sampling of s[n] - get a random value from n values
+1. define a size k array (k is small enough) - r[k]
+2. for i = 0 : n - 1 (while not end)
+if (i < k) r[k] = s[i]
+else:
+    generate a random j = value from 0 : i
+    if (int)j < k:
+        r[j] = s[i];
+finally get a random one from r[0 : k]
+*/
+import java.util.*;
+public class Solution {
+    ListNode head;
+    final int R_SIZE = 10;
+    int[] rArray;
+    
+    /** @param head The linked list's head.
+        Note that the head is guaranteed to be not null, so it contains at least one node. */
+    public Solution(ListNode head) {
+        this.head = head;
+        rArray = new int[R_SIZE];
+    }
+    
+    /** Returns a random node's value. */
+    public int getRandom() {
+        int curIndex = 0;
+        ListNode curNode = head;
+        while (curNode != null) {
+            if (curIndex < R_SIZE) {
+                rArray[curIndex] = curNode.val;
+            } else {
+                double random = Math.random(); // [0.0, 1.0)
+                int randomInt = (int) (random * (double)R_SIZE);
+                rArray[randomInt] = curNode.val;
+            }
+            curNode = curNode.next;
+            curIndex++;
+        }
+        double random = Math.random();
+        int randomInt = (int) (random * (double)(Math.min(curIndex, R_SIZE))); // note that the size may also be very small - even less than R_SIZE. therefore, we need to do a min here
+        return rArray[randomInt];
+    }
+}
+
+/**
+ * Your Solution object will be instantiated and called as such:
+ * Solution obj = new Solution(head);
+ * int param_1 = obj.getRandom();
+ */
