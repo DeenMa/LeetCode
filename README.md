@@ -39,3 +39,6 @@ HashSet<Pair> set = new HashSet<>();
 set.add(new Pair(1,2));
 boolean b = set.contains(new Pair(1,2)); // this will return false since this Pair(1,2) has a difference address to the Pair(1,2) added to hashset
 
+From 166: https://leetcode.com/problems/fraction-to-recurring-decimal/
+Note that for this problem (and for many other problems, think about it!), even if we are dealing with integers, we may also need to convert the intergers to long.
+Reason: say we want to get Integer.MAX_VALUE - 1 / Integer.MAX_VALUE work, outputting decimals instead of a simple 0, we need to expand the numerator and denominator to long and numerator * 10 to get correct decimals.

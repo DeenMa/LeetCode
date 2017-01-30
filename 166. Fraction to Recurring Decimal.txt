@@ -1,0 +1,85 @@
+/*
+algorithm:
+1. we do a division in integer level and get residue, if it is 0, then end
+2. if residue is not 0:
+2.1 dividee = residue
+dividee *= 10
+result = dividee / dividor, get residue
+everytime a result comes, we add it to the result int array
+everytime a residue comes, we add it to the hashmap <residue, index++>
+2.2 if during the while loop, we find a residue == 0, then we output the result array
+if we find a residue with the key appeared in the hashmap, get the index, then from 0 to index - 1, it is not repeated
+from index to current, it is repeated and should be "()"ed
+*/
+import java.util.*;
+public class Solution {
+    // recurringIndex == 0 means there is no recurring index
+    private String printString(List<Long> results, int recurringIndex, boolean isNegative) { // [0,6],1
+        StringBuilder sb = new StringBuilder();
+        if (isNegative) {
+            sb.append('-');
+        }
+        sb.append(results.get(0)); // "0"
+        if (results.size() > 1) {
+            sb.append('.'); // "0."
+            if (recurringIndex == 0) {
+                for (int i = 1; i < results.size(); i++) {
+                    sb.append(results.get(i)); // 
+                }
+            } else {
+                for (int i = 1; i < recurringIndex; i++) {
+                    sb.append(results.get(i));
+                }
+                sb.append('('); // "0.("
+                for (int i = recurringIndex; i < results.size(); i++) {
+                    sb.append(results.get(i));
+                }
+                sb.append(')');
+            }
+        }
+        return sb.toString();
+    }
+    
+    private String fractionToDecimal(long numerator, long denominator) {
+        if (denominator == 0) {
+            throw new IllegalArgumentException("denominator cannot be zero");
+        }
+        if (numerator == 0) {
+            return "0";
+        }
+        boolean isNegative = false;
+        if (numerator < 0) {
+            numerator = -numerator;
+            isNegative = !isNegative;
+        }
+        if (denominator < 0) {
+            denominator = -denominator;
+            isNegative = !isNegative;
+        }
+        List<Long> results = new ArrayList<>(); // the 0th index is the integer part and the rest is the fraction part 
+        int index = 0; // 0
+        Long result = numerator / denominator; // 0
+        results.add(result); // [0]
+        index++; // 1
+        long residue = numerator % denominator; // 2
+        HashMap<Long, Integer> map = new HashMap<>();
+        while (residue != 0) {
+            if (map.containsKey(residue)) {
+                int oldIndex = map.get(residue); // 1
+                return printString(results, oldIndex, isNegative); // [0,6],1
+            }
+            map.put(residue, index); // [<2,1>]
+            numerator = residue * 10; // 20
+            result = numerator / denominator; // 6
+            results.add(result); // [0,6]
+            index++; // 2
+            residue = numerator % denominator; // 2
+        }
+        return printString(results, 0, isNegative);    }
+    
+    public String fractionToDecimal(int numerator, int denominator) { // 2,3
+        long numeratorLong = (long)numerator;
+        long denominatorLong = (long)denominator;
+        return fractionToDecimal(numeratorLong, denominatorLong);
+    }
+}
