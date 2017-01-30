@@ -42,3 +42,10 @@ boolean b = set.contains(new Pair(1,2)); // this will return false since this Pa
 From 166: https://leetcode.com/problems/fraction-to-recurring-decimal/
 Note that for this problem (and for many other problems, think about it!), even if we are dealing with integers, we may also need to convert the intergers to long.
 Reason: say we want to get Integer.MAX_VALUE - 1 / Integer.MAX_VALUE work, outputting decimals instead of a simple 0, we need to expand the numerator and denominator to long and numerator * 10 to get correct decimals.
+
+From ?: 
+String is not a primitive java type, but that does not mean that system will assign a space for String - it does not. Everytime there is a new assignment, it will be assigned to a new reference / space which is a copy to String
+  String s0 = "0";
+  String s1 = s0;
+  s1 = "1";
+  System.out.println(s0); // "0", keep unchanged

@@ -1,0 +1,113 @@
+/*
+algorithm:
+1. create a hashmap to store the pair of "this word is looking for a character in the front or back" and a list of index of the word
+2. for all words:
+2.1 for the first and last letter, everytime we find whether in the hashmap, there exist what it is looking for which is exactly this first or last letter
+    the keys of hashmap: if a word with index i is looking for another word starts with char c, then we input c0, i into hashmap. if a word with index i is looking for another word ends with char c, then we input c1, i into hashmap
+2.2 if yes, then it is a candidate for palindrome. concatenate this two words to see whether they actually is
+*/
+public class Solution {
+    private void checkPalindrome(List<List<Integer>> results, String[] words, int indexLeft, int indexRight) {
+        String stringLeft = words[indexLeft];
+        String stringRight = words[indexRight];
+        String stringCombined = stringLeft + stringRight;
+        int pLeft = 0;
+        int pRight = stringCombined.length() - 1;
+        while (pLeft < pRight) {
+            if (stringCombined.charAt(pLeft) != stringCombined.charAt(pRight)) {
+                return;
+            }
+            pLeft++;
+            pRight--;
+        }
+        List<Integer> curResult = new ArrayList<>();
+        curResult.add(indexLeft);
+        curResult.add(indexRight);
+        results.add(curResult);
+    }
+    
+    private boolean isPalindrome(String s) {
+        int pLeft = 0;
+        int pRight = s.length() - 1;
+        while (pLeft < pRight) {
+            if (s.charAt(pLeft) != s.charAt(pRight)) {
+                return false;
+            }
+            pLeft++;
+            pRight--;
+        }
+        return true;
+    }
+    
+    public List<List<Integer>> palindromePairs(String[] words) {
+        List<List<Integer>> results = new ArrayList<>();
+        if (words == null || words.length == 0) {
+            return results;
+        }
+        List<Integer> singleWordPalindrome = new ArrayList<>();
+        int emptyStringIndex = -1; // this is another edge case, if there is a string indexed i with empty size and some other strings (say there is one with index j) which is already a palindrome, then we shall put <i, j> and <j, i> to the results too
+        HashMap<String, List<Integer>> map = new HashMap<>();
+        for (int curStringIndex = 0; curStringIndex < words.length; curStringIndex++) {
+            String curString = words[curStringIndex];
+            if (curString.length() == 0) {
+                emptyStringIndex = curStringIndex;
+                continue;
+            }
+            if (isPalindrome(curString)) {
+                singleWordPalindrome.add(curStringIndex);
+            }
+            // check the first char
+            char first = curString.charAt(0);
+            String firstID = new StringBuilder().append(first).append(0).toString();
+            if (map.containsKey(firstID)) {
+                List<Integer> candidates = map.get(firstID);
+                for (int curCandidateIndex = 0; curCandidateIndex < candidates.size(); curCandidateIndex++) {
+                    checkPalindrome(results, words, curStringIndex, candidates.get(curCandidateIndex));
+                }
+            }
+            // check the last char
+            char last = curString.charAt(curString.length() - 1);
+            String lastID = new StringBuilder().append(last).append(1).toString();
+            if (map.containsKey(lastID)) {
+                List<Integer> candidates = map.get(lastID);
+                for (int curCandidateIndex = 0; curCandidateIndex < candidates.size(); curCandidateIndex++) {
+                    checkPalindrome(results, words, candidates.get(curCandidateIndex), curStringIndex);
+                }
+            }
+            
+            // looking for words with char ending as first
+            String candidateLastID = new StringBuilder().append(first).append(1).toString();
+            if (!map.containsKey(candidateLastID)) {
+                List<Integer> list = new ArrayList<>();
+                list.add(curStringIndex);
+                map.put(candidateLastID, list);
+            } else {
+                List<Integer> list = map.get(candidateLastID);
+                list.add(curStringIndex);
+            }
+            
+            String candidateFirstID = new StringBuilder().append(last).append(0).toString();
+            if (!map.containsKey(candidateFirstID)) {
+                List<Integer> list = new ArrayList<>();
+                list.add(curStringIndex);
+                map.put(candidateFirstID, list);
+            } else {
+                List<Integer> list = map.get(candidateFirstID);
+                list.add(curStringIndex);
+            }
+        }
+        if (emptyStringIndex != -1) {
+            for (int curIndex = 0; curIndex < singleWordPalindrome.size(); curIndex++) {
+                List<Integer> list = new ArrayList<>();
+                list.add(emptyStringIndex);
+                list.add(singleWordPalindrome.get(curIndex));
+                results.add(list);
+                list = new ArrayList<>();
+                list.add(singleWordPalindrome.get(curIndex));
+                list.add(emptyStringIndex);
+                results.add(list);
+            }
+        }
+        return results;
+    }
+}
