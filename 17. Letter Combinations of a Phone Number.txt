@@ -1,0 +1,57 @@
+public class Solution {
+    private HashMap<Integer, Character[]> map = initializeMap();
+    private HashMap<Integer, Character[]> initializeMap() {
+        HashMap<Integer, Character[]> map = new HashMap<>();
+        Character[] array = new Character[]{'a', 'b', 'c'};
+        map.put(2, array);
+        
+        array = new Character[]{'d', 'e', 'f'};
+        map.put(3, array);
+        
+        array = new Character[]{'g', 'h', 'i'};
+        map.put(4, array);
+        
+        array = new Character[]{'j', 'k', 'l'};
+        map.put(5, array);
+        
+        array = new Character[]{'m', 'n', 'o'};
+        map.put(6, array);
+        
+        array = new Character[]{'p', 'q', 'r', 's'};
+        map.put(7, array);
+        
+        array = new Character[]{'t', 'u', 'v'};
+        map.put(8, array);
+        
+        array = new Character[]{'w', 'x', 'y', 'z'};
+        map.put(9, array);
+        return map;
+    }
+    
+    private void generateStrings(List<String> results, String curResult, String digits, int index) {
+        if (index == digits.length()) {
+            results.add(curResult);
+            return;
+        }
+        
+        int curDigit = (int)(digits.charAt(index) - '0');
+        if (!map.containsKey(curDigit)) {
+            throw new RuntimeException("generateStrings: cannot find current key in map");
+        }
+        Character[] curChars = map.get(curDigit);
+        for (int i = 0; i < curChars.length; i++) {
+            String newResult = curResult + curChars[i];
+            generateStrings(results, newResult, digits, index + 1);
+        }
+    }
+    
+    public List<String> letterCombinations(String digits) {
+        List<String> results = new ArrayList<>();
+        if (digits.length() == 0) {
+            return results;
+        }
+        String curResult = "";
+        generateStrings(results, curResult, digits, 0);
+        return results;
+    }
+}
