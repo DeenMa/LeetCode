@@ -1,0 +1,57 @@
+/*
+algorithm: greedy - o(n ^ 3)
+remove one digit everytime and compare and find the smallest
+until we had removed k digits
+*/
+import java.util.*;
+public class Solution {
+    private String getMin(String original) { // "1432219"
+        String min = null;
+        for (int i = 0; i < original.length(); i++) { // 2
+            StringBuilder sb = new StringBuilder();
+            if (i > 0) {
+                sb.append(original.substring(0, i)); // 14
+            }
+            if (i < original.length() - 1) { // 142219
+                sb.append(original.substring(i + 1));
+            }
+            String candidate = sb.toString(); // 142219
+            if (min == null) {
+                min = candidate; // 432219
+            } else {
+                for (int j = 0; j < candidate.length(); j++) {
+                    if (min.charAt(j) > candidate.charAt(j)) {
+                        min = candidate; // 132219
+                        break;
+                    } else if (min.charAt(j) < candidate.charAt(j)) {
+                        break;
+                    }
+                }
+            }
+        }
+        return min;
+    }
+    
+    private String validate(String original) {
+        int startIndex = 0;
+        for (int i = 0; i < original.length() - 1; i++) { // for the last digit, no matter 0 or else, we need to output it
+            if (original.charAt(i) == '0') {
+                startIndex++;
+            } else {
+                break;
+            }
+        }
+        return original.substring(startIndex);
+    }
+    
+    public String removeKdigits(String num, int k) { // "1432219",3
+        if (num.length() == k) {
+            return "0";
+        }
+        String numStart = num; // "1432219"
+        for (int i = 0; i < k; i++) { // 0
+            numStart = getMin(numStart);
+        }
+        return validate(numStart); // remove leading zeros, for example
+    }
+}
