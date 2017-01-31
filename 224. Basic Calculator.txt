@@ -1,0 +1,69 @@
+/*
+algorithm:
+using a string stack
+if it is a value, check if the peek is operator, if yes, pop operator and another value, and do the operation and push
+if not, push the value;
+if it is an operator or open bracket, push
+if it is a closing bracket, pop the value and the open bracket, and (possibly) need to do another operation
+*/
+import java.util.*;
+public class Solution {
+    private boolean isOperator(String s) {
+        return s.equals("+") || s.equals("-");
+    }
+    
+    private void calculate(Stack<String> stack, String val2) {
+        String operator = stack.pop();
+        String val1 = stack.pop();
+        String result;
+        if (operator.equals("+")) {
+            result = String.valueOf(Integer.valueOf(val1) + Integer.valueOf(val2));
+        } else {
+            result = String.valueOf(Integer.valueOf(val1) - Integer.valueOf(val2));
+        }
+        stack.push(result);
+    }
+    
+    private String extractBracket(Stack<String> stack) {
+        String val = stack.pop();
+        stack.pop(); // pop the open bracket
+        return val;
+    }
+    
+    public int calculate(String s) {
+        if (s == null || s.length() == 0) {
+            return 0;
+        }
+        Stack<String> stack = new Stack<>();
+        int index = 0;
+        while (index < s.length()) {
+            char c = s.charAt(index);
+            if (Character.isDigit(c)) {
+                String val = "";
+                while (index < s.length() && Character.isDigit(s.charAt(index))) {
+                    val += s.charAt(index);
+                    index++;
+                }
+                if (!stack.empty() && isOperator(stack.peek())) {
+                    calculate(stack, val);
+                } else {
+                    stack.push(val);
+                }
+            } else if (c == '(' || isOperator(String.valueOf(c))) {
+                stack.push(String.valueOf(c));
+                index++;
+            } else if (c == ')') {
+                String val = extractBracket(stack);
+                if (!stack.empty() && isOperator(stack.peek())) {
+                    calculate(stack, val);
+                } else {
+                    stack.push(val);
+                }
+                index++;
+            } else { // space
+                index++;
+            }
+        }
+        return Integer.valueOf(stack.peek());
+    }
+}
