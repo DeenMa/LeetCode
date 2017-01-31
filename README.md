@@ -63,3 +63,6 @@ else:
     if (int)j < k:
         r[j] = s[i];
 finally get a random one from r[0 : k]
+
+From 402: https://leetcode.com/problems/remove-k-digits/
+to remove k digits to get the minimum value, is equivalent to remove all the descending sequences (keep the ascending sequence as much as possible). in this case, using a stack is a great choice, since we can use a stack and store the ascending numbers inside (whenever there is a number smaller than peek, simply pop the peek until empty or found the peek less or equal to current one)

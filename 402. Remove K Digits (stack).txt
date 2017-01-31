@@ -1,0 +1,64 @@
+/*
+algorithm: priority - remove as much decreasing sequence as possible from the most important digit to the less important one
+using stack:
+if current one is equal or smaller than peek, push
+if smaller, pop one, k--, then check again, until the stack is empty or k == 0
+if k != 0 continue doing until the num is over
+output the stack in original order
+if the num is over while k still exist, get the first m (numbers left in stack) - k integers
+remove leading 0s if necessary
+time complexity: o(n)
+*/
+import java.util.*;
+public class Solution {
+    private String getCharsInStack(Stack<Character> stack) {
+        Stack<Character> temp = new Stack<>();
+        while (!stack.empty()) {
+            temp.push(stack.pop());
+        }
+        StringBuilder sb = new StringBuilder();
+        while (!temp.empty()) {
+            sb.append(temp.pop());
+        }
+        return sb.toString();
+    }
+    
+    public String removeKdigits(String num, int k) {
+        if (num == null || k == 0) {
+            return num;
+        }
+        if (k >= num.length()) {
+            return "0";
+        }
+        Stack<Character> stack = new Stack<>();
+        boolean finished = false;
+        int curIndex;
+        for (curIndex = 0; curIndex < num.length() && finished == false; curIndex++) {
+            char c = num.charAt(curIndex);
+            while (!stack.empty() && stack.peek() > c) {
+                stack.pop();
+                k--;
+                if (k == 0) {
+                    finished = true;
+                    break;
+                }
+            }
+            stack.push(c);
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append(getCharsInStack(stack));
+        if (curIndex < num.length()) {
+            sb.append(num.substring(curIndex));
+        }
+        String result = sb.toString();
+        if (k != 0) {
+            result = result.substring(0, result.length() - k);
+        }
+        // remove leading zeros
+        int startIndex = 0;
+        while (startIndex < result.length() - 1 && result.charAt(startIndex) == '0') {
+            startIndex++;
+        }
+        return result.substring(startIndex);
+    }
+}
