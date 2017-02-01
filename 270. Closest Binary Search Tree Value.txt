@@ -1,0 +1,43 @@
+/*
+algorithm:
+1. start from cur = root, diff = abs(target - cur.val), if diff changed, then value = cur.val
+2. if target smaller then come left, otherwise come right
+3. diff = min(target - cur.val), if diff changed, then value = cur.val
+repeat 2 and 3 until reached the same value, or cur == null
+return value
+*/
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+import java.util.*;
+public class Solution {
+    public int closestValue(TreeNode root, double target) {
+        if (root == null) {
+            return 0;
+        }
+        TreeNode cur = root;
+        double diff = Double.MAX_VALUE;
+        int val = cur.val;
+        while (cur != null) {
+            double newDiff = Math.abs(target - (double)cur.val);
+            if (newDiff < diff) {
+                diff = newDiff;
+                val = cur.val;
+            }
+            if (target < (double)cur.val) {
+                cur = cur.left;
+            } else if (target > (double)cur.val) {
+                cur = cur.right;
+            } else {
+                return cur.val; // 0
+            }
+        }
+        return val;
+    }
+}
