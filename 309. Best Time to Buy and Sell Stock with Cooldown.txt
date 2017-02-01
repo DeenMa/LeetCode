@@ -1,0 +1,31 @@
+/*
+algorithm: dp - we have 3 states:
+0. don't keep: that means we currently don't have the stock, nor did we sell the stock today
+1. keep: we currently have the stock
+2. sold: we made a transaction today and sold the stock
+initialization:
+dp[0][0] = 0;
+dp[0][1] = -prices[0];
+dp[0][0] = Math.MIN_VALUE; // no way to sell stock at day 0
+recursion:
+dp[i][0] = max(dp[i - 1][0], dp[i - 1][2]); // we can do nothing at day i - 1 or sell our stock
+dp[i][1] = max(dp[i - 1][1], dp[i - 1][0] - prices[i]); // we can either keep the stock do nothing on day i or buy stock at day i (note that if we sold stock at day i - 1 then we cannot buy today, so does not include dp[i - 1][2])
+dp[i][2] = dp[i - 1][1] + prices[i]
+finally compare the final day dp
+*/
+import java.util.*;
+public class Solution {
+    public int maxProfit(int[] prices) {
+        if (prices == null || prices.length < 2) {
+            return 0;
+        }
+        int[][] dp = new int[prices.length][3];
+        dp[0][0] = 0; dp[0][1] = -prices[0]; dp[0][2] = Integer.MIN_VALUE;
+        for (int i = 1; i < prices.length; i++) {
+            dp[i][0] = Math.max(dp[i - 1][0], dp[i - 1][2]);
+            dp[i][1] = Math.max(dp[i - 1][1], dp[i - 1][0] - prices[i]);
+            dp[i][2] = dp[i - 1][1] + prices[i];
+        }
+        return Math.max(dp[prices.length - 1][0], dp[prices.length - 1][2]);
+    }
+}
