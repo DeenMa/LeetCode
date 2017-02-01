@@ -1,0 +1,38 @@
+    public boolean validWordAbbreviation(String word, String abbr) {
+        if (word == null && abbr == null) {
+            return true;
+        }
+        if (word == null || abbr == null) {
+            return false;
+        }
+        int pW = 0;
+        int pA = 0;
+        while (pA != abbr.length()) {
+            if (Character.isDigit(abbr.charAt(pA))) {
+                List<Integer> nums = new ArrayList<>();
+                while (pA != abbr.length() && Character.isDigit(abbr.charAt(pA))) {
+                    nums.add((int)(abbr.charAt(pA) - '0'));
+                    pA++;
+                }
+                if (nums.get(0) == 0) {
+                    return false;
+                }
+                int num = 0;
+                for (int i = 0; i < nums.size(); i++) {
+                    num *= 10;
+                    num += nums.get(i);
+                }
+                pW += num;
+            } else {
+                if (pW >= word.length()) {
+                    return false;
+                }
+                if (abbr.charAt(pA) != word.charAt(pW)) {
+                    return false;
+                }
+                pA++;
+                pW++;
+            }
+        }
+        return pW == word.length();
+    }
