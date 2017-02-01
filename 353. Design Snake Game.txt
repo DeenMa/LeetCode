@@ -1,0 +1,96 @@
+/*
+algorithm: use a queue and a hashset for the snake (so that we can check it whether to bite itself)
+for every move, firstly we check whether the proposed position has a boundary - if yes, return -1
+if it is not a food, pop the last one and update hashmap; if it is a food, don't do this
+then push this proposed node to the queue and hashmap
+use a foodIndex (also the score)
+*/
+import java.util.*;
+public class SnakeGame {
+    private int numRows;
+    private int numCols;
+    private int indexFoodAndScore; // the same
+    private LinkedList<Integer> snake; // contains the combination of queue and hashset (o(1) search. using curRow * numCols + curCol to store a point
+    private int[][] food;
+
+    /** Initialize your data structure here.
+        @param width - screen width
+        @param height - screen height 
+        @param food - A list of food positions
+        E.g food = [[1,1], [1,0]] means the first food is positioned at [1,1], the second is at [1,0]. */
+    public SnakeGame(int width, int height, int[][] food) {
+        numCols = width;
+        numRows = height;
+        indexFoodAndScore = 0;
+        snake = new LinkedList<>();
+        this.food = food;
+        snake.offer(0); // first point
+    }
+    
+    private boolean isFood(int point, int[][] food, int indexFood) {
+        if (indexFood >= food.length) {
+            return false;
+        }
+        int[] curFood = food[indexFood];
+        return ((point / numCols == curFood[0]) && (point % numCols == curFood[1]));
+    }
+    
+    /** Moves the snake.
+        @param direction - 'U' = Up, 'L' = Left, 'R' = Right, 'D' = Down 
+        @return The game's score after the move. Return -1 if game over. 
+        Game over when snake crosses the screen boundary or bites its body. */
+    public int move(String direction) {
+        int peekPoint = snake.peekLast();
+        int peekRow = peekPoint / numCols;
+        int peekCol = peekPoint % numCols;
+        int nextPoint = -1;
+        switch (direction) {
+            case "U": {
+                if (peekRow == 0) {
+                    return -1;
+                }
+                nextPoint = (peekRow - 1) * numCols + peekCol;
+                break;
+            }
+            case "L": {
+                if (peekCol == 0) {
+                    return -1;
+                }
+                nextPoint = peekRow * numCols + (peekCol - 1);
+                break;
+            }
+            case "R": {
+                if (peekCol == numCols - 1) {
+                    return -1;
+                }
+                nextPoint = peekRow * numCols + (peekCol + 1);
+                break;
+            }
+            case "D": {
+                if (peekRow == numRows - 1) {
+                    return -1;
+                }
+                nextPoint = (peekRow + 1) * numCols + peekCol;
+                break;
+            }
+            default: throw new IllegalArgumentException("move: unrecognized direction");
+        }
+        if (!isFood(nextPoint, food, indexFoodAndScore)) {
+            snake.poll(); // remove the last one
+        } else {
+            indexFoodAndScore++;
+        }
+        // try to offer the new point, if bite itself, return -1
+        if (snake.contains(nextPoint)) {
+            return -1;
+        }
+        snake.offer(nextPoint);
+        return indexFoodAndScore;
+    }
+}
+
+/**
+ * Your SnakeGame object will be instantiated and called as such:
+ * SnakeGame obj = new SnakeGame(width, height, food);
+ * int param_1 = obj.move(direction);
+ */

@@ -71,3 +71,6 @@ From 10: https://leetcode.com/problems/regular-expression-matching/ and 44: http
 About regular and wildcard matching - using dp
 we only iterate p (the template string), for the regular matching go right to left since we need to deal with the * along with the previous character (and this is the only case that the cursor of p jump 2 indexes). for the wildcard matching go left to right for better understanding. everytime we meet a *, insert true for all following indexes.
 finally find whether the final one is the same.
+
+From 353: https://leetcode.com/problems/design-snake-game/
+note that we have the linkedlist data structure - this support deque and hashset, therefore it is perfect to do o(1) offer from back and front, o(1) poll from front and back, and o(1) search
