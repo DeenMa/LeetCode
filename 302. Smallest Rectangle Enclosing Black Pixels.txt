@@ -1,0 +1,74 @@
+/*
+algorithm: bfs
+*/
+import java.util.*;
+public class Solution {
+    private class Boundary {
+        int up;
+        int down;
+        int left;
+        int right;
+        
+        public Boundary(int row, int col) {
+            up = row;
+            down = row;
+            left = col;
+            right = col;
+        }
+        
+        public void update(int row, int col) {
+            if (row < up) {
+                up = row;
+            }
+            if (row > down) {
+                down = row;
+            }
+            if (col < left) {
+                left = col;
+            }
+            if (col > right) {
+                right = col;
+            }
+        }
+        
+        public int calculateArea() {
+            return (down - up + 1) * (right - left + 1);
+        }
+    }
+    
+    public int minArea(char[][] image, int x, int y) {
+        if (image == null || image.length == 0 || image[0].length == 0) {
+            return 0;
+        }
+        int numRows = image.length;
+        int numCols = image[0].length;
+        
+        Boundary b = new Boundary(x, y);
+        Queue<Integer> queue = new LinkedList<>();
+        queue.offer(x * numCols + y);
+        image[x][y] = '2';
+        while (queue.peek() != null) {
+            int cur = queue.poll();
+            int row = cur / numCols;
+            int col = cur % numCols;
+            b.update(row, col);
+            if (row > 0 && image[row - 1][col] == '1') {
+                queue.offer((row - 1) * numCols + col);
+                image[row - 1][col] = '2';
+            }
+            if (row < numRows - 1 && image[row + 1][col] == '1') {
+                queue.offer((row + 1) * numCols + col);
+                image[row + 1][col] = '2';
+            }
+            if (col > 0 && image[row][col - 1] == '1') {
+                queue.offer(row * numCols + col - 1);
+                image[row][col - 1] = '2';
+            }
+            if (col < numCols - 1 && image[row][col + 1] == '1') {
+                queue.offer(row * numCols + col + 1);
+                image[row][col + 1] = '2';
+            }
+        }
+        return b.calculateArea();
+    }
+}
