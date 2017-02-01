@@ -1,0 +1,42 @@
+/*
+algorithm: dp[i][j] means whether it is a match for s(0 ~ i) and p(0 ~ j)
+we only do those true dps
+for p, we proceed 1 for each iteration
+for p, if found a char, then compare s[i] and p[j], if same then true
+if found a ?, then true
+if found a *, from dp[i][j] to the end, mark as true
+*/
+import java.util.*;
+public class Solution {
+    public boolean isMatch(String s, String p) {
+        if (s == null || p == null) {
+            return false;
+        }
+        boolean[][] dp = new boolean[s.length() + 1][p.length() + 1];
+        dp[0][0] = true;
+        int sIndex = 0;
+        int pIndex = 0;
+        while (pIndex < p.length()) { // 2nd dimension size of dp
+            for (sIndex = 0; sIndex < s.length() + 1; sIndex++) {
+                if (dp[sIndex][pIndex] == true) { // we only do the true part
+                    char cp = p.charAt(pIndex);
+                    if (cp >= 'a' && cp <= 'z') {
+                        if (sIndex < s.length() && s.charAt(sIndex) == cp) {
+                            dp[sIndex + 1][pIndex + 1] = true;
+                        }
+                    } else if (cp == '?') {
+                        if (sIndex < s.length()) {
+                            dp[sIndex + 1][pIndex + 1] = true;
+                        }
+                    } else if (cp == '*') {
+                        for (int k = sIndex; k < s.length() + 1; k++) {
+                            dp[k][pIndex + 1] = true;
+                        }
+                    }
+                }
+            }
+            pIndex++;
+        }
+        return dp[s.length()][p.length()];
+    }
+}

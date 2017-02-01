@@ -1,0 +1,72 @@
+/*
+algorithm: dp:
+dp[i][j] is whether s(i, :) is a match to p(j, :)
+start:
+dp[s.length()][p.length()] = true
+then check p - only check those true values
+if p[j - 1] is a char, check s[i - 1], if same, then dp[i - 1][j - 1] = true; j--;
+if p[j - 1] is '.', dp[i - 1][j - 1] guaranteed to be true; j--;
+if p[j - 1] == '*', then dp[i][j - 2] = true and get p[j - 2]:
+if p[j - 2] is char then from s[i - 1] backward, mark true if s[k] == p[j - 2]
+if p[j - 2] is '.', then dp[i - 1][j - 2] = true, and if s[k] == s[i - 1] then dp[k][j - 2] = true
+j -= 2;
+until j == 0, then check dp[0][0]
+*/
+import java.util.*;
+public class Solution {
+    public boolean isMatch(String s, String p) {
+        if (s == null || p == null) {
+            return false;
+        }
+        // add edge case
+        boolean[][] dp = new boolean[s.length() + 1][p.length() + 1];
+        dp[s.length()][p.length()] = true;
+        int curS = s.length();
+        int curP = p.length();
+        while (curP > 0) {
+            char cp = p.charAt(curP - 1);
+            for (curS = 0; curS < dp.length; curS++) {
+                if (dp[curS][curP] == true) { // we only do those which is already true
+                    if (cp >= 'a' && cp <= 'z') {
+                        if (curS > 0 && s.charAt(curS - 1) == cp) {
+                            dp[curS - 1][curP - 1] = true;
+                        }
+                    } else if (curS > 0 && cp == '.') {
+                        dp[curS - 1][curP - 1] = true;
+                    } else {
+                        if (curP < 2) {
+                            return false;
+                        }
+                        dp[curS][curP - 2] = true;
+                        char cp2 = p.charAt(curP - 2);
+                        if (curS > 0) {
+                            char lastChar = s.charAt(curS - 1);
+                            if (cp2 == '.') {
+                                dp[curS - 1][curP - 2] = true;
+                                for (int k = curS - 2; k > -1; k--) {
+                                    if (s.charAt(k) == lastChar) {
+                                        dp[k][curP - 2] = true;
+                                    }
+                                }
+                            } else if (cp2 == '*') { // not allowed
+                                throw new RuntimeException("grammar error: cannot parse **");
+                            } else {
+                                for (int k = curS - 1; k > -1; k--) {
+                                    if (s.charAt(k) == cp2) {
+                                        dp[k][curP - 2] = true;
+                                    }
+                                }
+                            }
+                        }                    
+                    }
+                }
+            }
+            if (cp == '.' || (cp >= 'a' && cp <= 'z')) {
+                curP--;
+            } else {
+                curP -= 2;
+            }
+        }
+        return dp[0][0];
+    }
+}

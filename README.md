@@ -66,3 +66,8 @@ finally get a random one from r[0 : k]
 
 From 402: https://leetcode.com/problems/remove-k-digits/
 to remove k digits to get the minimum value, is equivalent to remove all the descending sequences (keep the ascending sequence as much as possible). in this case, using a stack is a great choice, since we can use a stack and store the ascending numbers inside (whenever there is a number smaller than peek, simply pop the peek until empty or found the peek less or equal to current one)
+
+From 10: https://leetcode.com/problems/regular-expression-matching/ and 44: https://leetcode.com/problems/wildcard-matching/
+About regular and wildcard matching - using dp
+we only iterate p (the template string), for the regular matching go right to left since we need to deal with the * along with the previous character (and this is the only case that the cursor of p jump 2 indexes). for the wildcard matching go left to right for better understanding. everytime we meet a *, insert true for all following indexes.
+finally find whether the final one is the same.
