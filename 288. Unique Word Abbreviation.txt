@@ -1,0 +1,44 @@
+import java.util.*;
+public class ValidWordAbbr {
+    private HashMap<String, HashSet<String>> map;
+    
+    private String getAbbr(String s) {
+        if (s.length() < 3) {
+            return s;
+        }
+        return new StringBuilder().append(s.charAt(0)).append(s.length() - 2).append(s.charAt(s.length() - 1)).toString();
+    }
+    
+    public ValidWordAbbr(String[] dictionary) {
+        map = new HashMap<>();
+        for (String s : dictionary) {
+            String abbr = getAbbr(s);
+            if (map.containsKey(abbr)) {
+                HashSet<String> strings = map.get(abbr);
+                strings.add(s);
+            } else {
+                HashSet<String> strings = new HashSet<>();
+                strings.add(s);
+                map.put(abbr, strings);
+            }
+        }
+    }
+    
+    public boolean isUnique(String word) {
+        String abbr = getAbbr(word);
+        if (!map.containsKey(abbr)) {
+            return true;
+        }
+        HashSet<String> set = map.get(abbr);
+        if (set.size() > 1) {
+            return false;
+        }
+        return set.contains(word);
+    }
+}
+
+/**
+ * Your ValidWordAbbr object will be instantiated and called as such:
+ * ValidWordAbbr obj = new ValidWordAbbr(dictionary);
+ * boolean param_1 = obj.isUnique(word);
+ */
