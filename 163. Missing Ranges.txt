@@ -1,0 +1,77 @@
+import java.util.*;
+public class Solution {
+    private String analyze(int small, int big) { // inclusive
+        if (small > big) {
+            return null;
+        }
+        if (small == big) {
+            return new StringBuilder().append(small).toString();
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append(small).append("->").append(big);
+        return sb.toString();
+    }
+    
+    private int getLowerIndex(int[] nums, int start, int end, int target) { // [0, 9], 0, 1, 0
+        while (start < end - 1) {
+            int middle = (start + end) / 2;
+            if (nums[middle] == target) {
+                return middle;
+            }
+            if (target < nums[middle]) {
+                end = middle - 1;
+            } else {
+                start = middle + 1;
+            }
+        }
+        if (start == end) {
+            if (target <= nums[start]) {
+                return start;
+            }
+            return start + 1;
+        }
+        if (target <= nums[start]) {
+            return start; // 0
+        }
+        if (target <= nums[end]) {
+            return end;
+        }
+        return end + 1;
+    }
+    
+    public List<String> findMissingRanges(int[] nums, int lower, int upper) {// [0,9], 0, 9
+        List<String> results = new ArrayList<>();
+        if (lower > upper) {
+            throw new RuntimeException("lower should not be bigger than upper");
+        }
+        String cur = null;
+        if (nums == null || nums.length == 0) {
+            cur = analyze(lower, upper);
+            if (cur != null) {
+                results.add(cur);
+            }
+            return results;
+        }
+        int lowerIndex = getLowerIndex(nums, 0, nums.length - 1, lower); // 0
+        // if == 0, compare with the 0th value, if smaller, add that range; else, compare lower and lowerIndex to see whether we need to add a range here, then from startIndex to either upper or end of num, do analyze
+        
+        cur = analyze(lower, Math.min(nums[lowerIndex] - 1, upper));
+        if (cur != null) {
+            results.add(cur);
+        }
+        int i;
+        for (i = lowerIndex + 1; i < nums.length && nums[i] <= upper; i++) {
+            cur = analyze(nums[i - 1] + 1, nums[i] - 1);
+            if (cur != null) {
+                results.add(cur);
+            }
+        }
+        if (i == nums.length) {
+            cur = analyze(nums[i - 1] + 1, upper);
+            if (cur != null) {
+                results.add(cur);
+            }
+        }
+        return results;
+    }
+}
