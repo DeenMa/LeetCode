@@ -74,3 +74,6 @@ finally find whether the final one is the same.
 
 From 353: https://leetcode.com/problems/design-snake-game/
 note that we have the linkedlist data structure - this support deque and hashset, therefore it is perfect to do o(1) offer from back and front, o(1) poll from front and back, and o(1) search
+
+From 239: https://leetcode.com/problems/sliding-window-maximum/
+use a deque, and we store the values not only by its value but also by index, note that the constant size of the deque is k - 1, not k. whenever a new number come, we push it so that it temporarily reach k, but then pop the first one to make it back to k - 1

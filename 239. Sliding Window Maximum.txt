@@ -1,0 +1,53 @@
+/*
+info: value and index
+algorithm: dequeue<Info>
+while (i < k - 1) {
+    push, no pop
+} else {
+    push first, then pop
+}
+
+push: check peeklast, pop it until empty or bigger than current
+pop: check peekfirst index, if == i - k + 1, then pop, otherwise don't pop simply return the peek value
+*/
+public class Solution {
+    private class Info {
+        int index;
+        int value;
+        public Info (int i, int v) {
+            index = i;
+            value = v;
+        }
+    }
+    
+    private void myPush(Deque<Info> deque, int[] nums, int index) {
+        int value = nums[index];
+        while (deque.size() > 0 && deque.peekLast().value < value) {
+            deque.pollLast();
+        }
+        deque.offerLast(new Info(index, value));
+    }
+    
+    private int myPop(Deque<Info> deque, int index, int k) {
+        if (deque.peekFirst().index == index - k + 1) {
+            return deque.pollFirst().value;
+        }
+        return deque.peekFirst().value;
+    }
+    
+    public int[] maxSlidingWindow(int[] nums, int k) {
+        if (nums == null || nums.length == 0) {
+            return new int[0];
+        }
+        int[] results = new int[nums.length - k + 1];
+        Deque<Info> deque = new LinkedList<>();
+        for (int i = 0; i < k - 1; i++) {
+            myPush(deque, nums, i);
+        }
+        for (int i = k - 1; i < nums.length; i++) {
+            myPush(deque, nums, i);
+            results[i - k + 1] = myPop(deque, i, k);
+        }
+        return results;
+    }
+}
