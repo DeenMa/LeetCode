@@ -1,0 +1,19 @@
+Question:
+max weight loss， 给出一个人体重的变化array，求出是否有连续或者不连续的最大体重drop 如 [120, 140, 130, 135, 110, 160], 最大的loss就是 140 - 110 = 30；
+
+Code:
+    private static int maxWeightLoss(int[] nums) {
+        if (nums == null || nums.length < 2) {
+            return 0;
+        }
+        int maxWeight = nums[0];
+        int maxLoss = 0;
+        for (int i = 1; i < nums.length; i++) {
+            if (nums[i] > maxWeight) {
+                maxWeight = nums[i];
+            } else {
+                maxLoss = Math.max(maxLoss, maxWeight - nums[i]);
+            }
+        }
+        return maxLoss;
+    }
