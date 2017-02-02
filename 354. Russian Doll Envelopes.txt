@@ -1,0 +1,31 @@
+import java.util.*;
+public class Solution {
+    public int maxEnvelopes(int[][] envelopes) {
+        if (envelopes == null || envelopes.length == 0 || envelopes[0].length == 0) {
+            return 0;
+        }
+        int num = envelopes.length;
+        Arrays.sort(envelopes, new Comparator<int[]>() {
+            public int compare(int[] n1, int[] n2) {
+                if (n1[0] != n2[0]) {
+                    return n1[0] - n2[0];
+                }
+                return n1[1] - n2[0];
+            }
+        });
+        int[] dp = new int[num];
+        dp[0] = 0;
+        for (int i = 1; i < num; i++) {
+            for (int j = 0; j < i; j++) {
+                if (envelopes[i][0] > envelopes[j][0] && envelopes[i][1] > envelopes[j][1]) {
+                    dp[i] = Math.max(dp[i], dp[j] + 1);
+                }
+            }
+        }
+        int max = 0;
+        for (int i = 0; i < num; i++) {
+            max = Math.max(max, dp[i]);
+        }
+        return max + 1;
+    }
+}
