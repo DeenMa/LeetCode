@@ -1,0 +1,128 @@
+problem:
+给一个byte array（一张黑白pixel的图片），怎么把它排成一个2D matrix。排后图片要make sense。
+e.g., given byte array = 110011001000
+应该把array排成：
+1100
+1100
+1000
+
+或   
+110
+011
+001
+000
+第一种排法比较适合方形物体，第二种排法比较适合条状物体。
+
+solution:
+    private static int getPixeles(String byteArray) {
+        int result = 0;
+        for (int i = 0; i < byteArray.length(); i++) {
+            if (byteArray.charAt(i) == '1') {
+                result++;
+            }
+        }
+        return result;
+    }
+    
+    private static List<int[]> getDimensions(int num) {
+        List<int[]> results = new ArrayList<>();
+        if (num < 4) {
+            return results;
+        }
+        for (int i = 2; i < (int)Math.sqrt((double)num) + 1; i++) {
+            int div = num / i;
+            if (i * div == num) {
+                int[] result = new int[2];
+                result[0] = i;
+                result[1] = div;
+                results.add(result);
+                result = new int[2];
+                result[0] = div;
+                result[1] = i;
+                results.add(result);
+            }
+        }
+        return results;
+    }
+    
+    private static int[][] restructure(String byteArray, int[] dimension) {
+        int numRows = dimension[0];
+        int numCols = dimension[1];
+        int[][] image = new int[numRows][numCols];
+        for (int i = 0; i < byteArray.length(); i++) {
+            int row = i / numCols;
+            int col = i % numCols;
+            image[row][col] = (int)(byteArray.charAt(i) - '0');
+        }
+        return image;
+    }
+    
+    private static int bfs(int[][] image, int row, int col) {
+        int numPixeles = 0;
+        int numRows = image.length;
+        int numCols = image[0].length;
+        Queue<Integer> queue = new LinkedList<>();
+        boolean[][] visited = new boolean[numRows][numCols];
+        queue.offer(row * numCols + col);
+        visited[row][col] = true;
+        while (queue.peek() != null) {
+            int cur = queue.poll();
+            numPixeles++;
+            row = cur / numCols;
+            col = cur % numCols;
+            if (row > 0 && image[row - 1][col] == 1 && visited[row - 1][col] == false) {
+                queue.offer((row - 1) * numCols + col);
+                visited[row - 1][col] = true;
+            }
+            if (row < numRows - 1 && image[row + 1][col] == 1 && visited[row + 1][col] == false) {
+                queue.offer((row + 1) * numCols + col);
+                visited[row + 1][col] = true;
+            }
+            if (col > 0 && image[row][col - 1] == 1 && visited[row][col - 1] == false) {
+                queue.offer(row * numCols + col - 1);
+                visited[row][col - 1] = true;
+            }
+            if (col < numCols - 1 && image[row][col + 1] == 1 && visited[row][col + 1] == false) {
+                queue.offer(row * numCols + col + 1);
+                visited[row][col + 1] = true;
+            }
+        }
+        return numPixeles;
+    }
+    
+    private static boolean isContinuous(int[][] image, int pixeles) {
+        int pixel = 0;
+        int numRows = image.length;
+        int numCols = image[0].length;
+        for (int i = 0; i < numRows; i++) {
+            for (int j = 0; j < numCols; j++) {
+                if (image[i][j] == 1) {
+                    pixel = bfs(image, i, j);
+                    if (pixel != pixeles) {
+                        return false;
+                    }
+                    return true;
+                }
+            }
+        }
+        return false; // will not reach here
+    }
+    
+    private static List<int[][]> getImages(String byteArray) {
+        List<int[][]> results = new ArrayList<>();
+        if (byteArray == null || byteArray.length() == 0) {
+            return results;
+        }
+        int pixeles = getPixeles(byteArray);
+        if (pixeles == 0) { // no image
+            return results;
+        }
+        List<int[]> dimensions = getDimensions(byteArray.length());
+        for (int[] curDimension : dimensions) {
+            int[][] candidateImage = restructure(byteArray, curDimension);
+            if (isContinuous(candidateImage, pixeles)) {
+                results.add(candidateImage);
+            }
+        }
+        return results;
+    }
