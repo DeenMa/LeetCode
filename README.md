@@ -77,3 +77,11 @@ note that we have the linkedlist data structure - this support deque and hashset
 
 From 239: https://leetcode.com/problems/sliding-window-maximum/
 use a deque, and we store the values not only by its value but also by index, note that the constant size of the deque is k - 1, not k. whenever a new number come, we push it so that it temporarily reach k, but then pop the first one to make it back to k - 1
+
+From 4: Median of Two Sorted Arrays: https://leetcode.com/problems/median-of-two-sorted-arrays/
+A lot of things to learn for this problem:
+1. general idea: every time we jump, we jump k / 2
+2. if the array is less than k / 2 to jump, jump the whole array
+3. (!remember to make k the kth element, index starting at 1 instead of 0)
+4. in order to make case easier, assume nums1 has length smaller than nums2, if not, swap them
+5. end case: k == 1, or if one array is empty (start > end), then simply get the (k - 1)th element from another array

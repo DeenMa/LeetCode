@@ -1,0 +1,32 @@
+public class Solution {
+    private int findKthSortedArray(int[] nums1, int start1, int end1, int[] nums2, int start2, int end2, int k) {
+        if (end1 - start1 > end2 - start2) {
+            return findKthSortedArray(nums2, start2, end2, nums1, start1, end1, k);
+        }
+        if (start1 > end1) {
+            return nums2[start2 + k - 1];
+        }
+        if (k == 1) {
+            return Math.min(nums1[start1], nums2[start2]);
+        }
+        int jump1 = Math.min(end1 - start1 + 1, k / 2);
+        int jump2 = Math.min(end2 - start2 + 1, k / 2);
+        // note that == does not mean anything, since jump1 + jump2 might not be k, therefore we cannot say we had jumped k items, the only place that means anything is the if (k == 0) statement
+        if (nums1[start1 + jump1 - 1] > nums2[start2 + jump2 - 1]) { // 
+            return findKthSortedArray(nums1, start1, end1, nums2, start2 + jump2, end2, k - jump2);
+        } else {
+            return findKthSortedArray(nums1, start1 + jump1, end1, nums2, start2, end2, k - jump1);
+        }
+    }
+    
+    public double findMedianSortedArrays(int[] nums1, int[] nums2) {
+        if (nums1 == null || nums2 == null) {
+            throw new RuntimeException("empty array found");
+        }
+        int k = (nums1.length + nums2.length) / 2;
+        if ((nums1.length + nums2.length) % 2 == 1) {
+            return (double)findKthSortedArray(nums1, 0, nums1.length - 1, nums2, 0, nums2.length - 1, k + 1);
+        }
+        return ((double)findKthSortedArray(nums1, 0, nums1.length - 1, nums2, 0, nums2.length - 1, k) + (double)findKthSortedArray(nums1, 0, nums1.length - 1, nums2, 0, nums2.length - 1, k + 1)) / 2.0;
+    }
+}
