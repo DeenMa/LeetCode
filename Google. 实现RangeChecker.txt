@@ -1,0 +1,72 @@
+// http://www.1point3acres.com/bbs/forum.php?mod=viewthread&tid=218243&extra=page%3D1%26filter%3Dsortid%26sortid%3D311%26searchoption%5B3088%5D%5Bvalue%5D%3D1%26searchoption%5B3088%5D%5Btype%5D%3Dradio%26searchoption%5B3089%5D%5Bvalue%5D%5B3%5D%3D3%26searchoption%5B3089%5D%5Btype%5D%3Dcheckbox%26searchoption%5B3090%5D%5Bvalue%5D%3D1%26searchoption%5B3090%5D%5Btype%5D%3Dradio%26searchoption%5B3046%5D%5Bvalue%5D%3D1%26searchoption%5B3046%5D%5Btype%5D%3Dradio%26sortid%3D311
+    private static class Interval {
+        int start;
+        int end;
+        public Interval(int s, int e) {
+            start = s;
+            end = e;
+        }
+    }
+    
+    private static class TreeNode {
+        Interval interval;
+        TreeNode left;
+        TreeNode right;
+        
+        public TreeNode(Interval i) {
+            interval = i;
+        }
+    }
+    
+    private static class RangeChecker {
+        TreeNode root;
+        
+        public RangeChecker() {
+        }
+        
+        public void insert(Interval i) {
+            TreeNode target = new TreeNode(i);
+            if (root == null) {
+                root = target;
+            } else {
+                int iStart = i.start;
+                TreeNode cur = root;
+                TreeNode pre = cur;
+                while (cur != null) {
+                    pre = cur;
+                    if (iStart < cur.interval.start) {
+                        cur = cur.left;
+                    } else {
+                        cur = cur.right;
+                    }
+                }
+                if (pre.interval.start < target.interval.start) {
+                    pre.right = target;
+                } else {
+                    pre.left = target;
+                }
+            }
+        }
+        
+        public boolean query(int x) {
+            if (root == null) {
+                return false;
+            }
+            TreeNode tn = root;
+            while (tn != null) {
+                if (tn.interval.start == x) {
+                    return true;
+                }
+                if (tn.interval.start > x) {
+                    tn = tn.left;
+                } else {
+                    if (tn.interval.end >= x) {
+                        return true;
+                    } else {
+                        tn = tn.right;
+                    }
+                }
+            }
+            return false;
+        }
+    }
