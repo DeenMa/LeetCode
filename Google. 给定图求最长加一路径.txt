@@ -1,0 +1,61 @@
+    private static class GraphNode {
+        int val;
+        List<GraphNode> neighbors;
+        public GraphNode(int v) {
+            val = v;
+            neighbors = new ArrayList<>();
+        }
+        public void addNeighbor(GraphNode gn) {
+            neighbors.add(gn);
+        }
+    }
+
+    private static class PathInfo {
+        int curPath;
+        int maxPath;
+        public PathInfo(int c, int m) {
+            curPath = c;
+            maxPath = m;
+        }
+    }
+    
+    private static PathInfo getLongestIncreasingPathUtil(GraphNode gn) {
+        int curPath = 1;
+        int maxPath = 1;
+        if (gn.neighbors.size() == 0) {
+            return new PathInfo(1, 1);
+        }
+        for (GraphNode gnn : gn.neighbors) {
+            PathInfo pi = null;
+            if (map.containsKey(gnn)) {
+                pi = map.get(gnn);
+            } else {
+                pi = getLongestIncreasingPathUtil(gnn);
+            }
+            if (gn.val + 1 == gnn.val) {
+                curPath = Math.max(curPath, pi.curPath + 1);
+            }
+            maxPath = Math.max(curPath, pi.maxPath);
+        }
+        PathInfo result = new PathInfo(curPath, maxPath);
+        if (!map.containsKey(gn)) {
+            map.put(gn, result);
+        }
+        System.out.println("node value is " + gn.val + ". cur path and max path are " + curPath + " and " + maxPath);
+        return result;
+    }
+    
+    private static HashMap<GraphNode, PathInfo> map; 
+    
+    private static int getLongestIncreasingPath(List<GraphNode> starts) {
+        if (starts == null || starts.size() == 0) {
+            return 0;
+        }
+        map = new HashMap<>();
+        int maxPath = 0;
+        for (GraphNode gn : starts) {
+            PathInfo curInfo = getLongestIncreasingPathUtil(gn);
+            maxPath = Math.max(maxPath, curInfo.maxPath);
+        }
+        return maxPath;
+    }
