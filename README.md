@@ -85,3 +85,7 @@ A lot of things to learn for this problem:
 3. (!remember to make k the kth element, index starting at 1 instead of 0)
 4. in order to make case easier, assume nums1 has length smaller than nums2, if not, swap them
 5. end case: k == 1, or if one array is empty (start > end), then simply get the (k - 1)th element from another array
+
+From 298: https://leetcode.com/problems/binary-tree-longest-consecutive-sequence/
+Note that: 1. remember to +1, once find a route from children
+2. keep a max that can keep all the time

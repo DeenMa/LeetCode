@@ -1,7 +1,10 @@
-R3: For each student, Given a n length string, representting the status for latest n days。 比如最近五天可以表示为 “AALOA” 或者 “AAAAA” 
+1. R3: For each student, Given a n length string, representting the status for latest n days。 比如最近五天可以表示为 “AALOA” 或者 “AAAAA” 
     A - absent
     L  - late
     O - on time
 当 absent的次数 >= 2, 或者连续late达到三天。这个学生要被punished.   如最近四天“AAOL” 或者 “LLLO” 就会被惩罚， “AOLL”则不会.
 (1).讨论当 n = 3 的情况，有多少种被惩罚的情况。
 (2). 当 n 为linear时，算出这个学生有多少种不同的会被punished的可能情况。 一开始用暴力dfs来穷举所有组合，到后面要求剪枝，方法是当以上某一种情况达成时，利用三叉树的性质直接求出往下还有多少种通到叶节点可能，然后直接返回当前层，这样一来就避免了不必要down path。 然而面试官还是不大满意，最后他说了一个比较tricky剪枝办法，我没太听明白。
+
+2. 然后是给一个list of words，让随机 生成一个board，在这个board中要能够找到所有的word。每个word可以按照8个方向（上下左右，上左，上右，下左，下右）按直线排，允许交叉，但交叉点字母必须相同（废话）。很显然不允许出格
+
