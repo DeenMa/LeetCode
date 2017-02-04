@@ -1,0 +1,40 @@
+    private static class TreeNode {
+        int val;
+        List<TreeNode> children;
+        
+        public TreeNode(int v) {
+            val = v;
+            children = new ArrayList<>();
+        }
+        
+        public void addChild(TreeNode tn) {
+            this.children.add(tn);
+        }
+    }
+    
+    private static int maxPath = 0;
+    
+    private static int getLongestIncreasingPathUtil(TreeNode tn) {
+        if (tn == null) {
+            return 0;
+        }
+        if (tn.children.size() == 0) {
+            return 1;
+        }
+        int result = 1;
+        for (TreeNode tnChild : tn.children) {
+            int curMaxLength = getLongestIncreasingPathUtil(tnChild);
+            if (tn.val == tnChild.val - 1) {
+                result = Math.max(result, curMaxLength + 1);
+            }
+        }
+        maxPath = Math.max(maxPath, result);
+        return result;
+    }
+    
+    private static int getLongestIncreasingPath(TreeNode root) {
+        maxPath = 0;
+        getLongestIncreasingPathUtil(root);
+        return maxPath;
+    }
+    
