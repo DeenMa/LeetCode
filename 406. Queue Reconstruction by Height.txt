@@ -1,0 +1,81 @@
+/*
+do we need to assume the data are valid? - assume valid
+we can do a final check to see whether it is valid
+algorithm:
+1. sort the list by k and then h
+2. create a list of result
+3. for (all the people) {
+    if (h == 0) {
+        directly insert to the list, continue
+    }
+    get people, its height h and seq k
+    int noShorter = 0;
+    go through the list, if current people noShorter than this people, noShorter++;
+    when noShorter had reached k, insert current position to this people
+}
+*/
+import java.util.*;
+public class Solution {
+    public int[][] reconstructQueue(int[][] people) {
+        if (people == null || people.length == 0) {
+            return people;
+        }
+        if (people[0].length != 2) {
+            throw new RuntimeException("people format incorrect");
+        }
+        Arrays.sort(people, new Comparator<int[]>() {
+            public int compare(int[] i1, int[] i2) {
+                if (i1[1] != i2[1]) {
+                    return i1[1] - i2[1];
+                }
+                return i1[0] - i2[0];
+            }
+        });
+        List<int[]> result = new ArrayList<>();
+        for (int[] curPeople : people) {
+            if (curPeople[1] == 0) {
+                result.add(curPeople);
+                continue;
+            }
+            int noShorter = 0;
+            int h = curPeople[0];
+            int k = curPeople[1];
+            for (int comparePersonIndex = 0; comparePersonIndex < result.size() + 1; comparePersonIndex++) { // note that it might reach the last one so i added the + 1 here
+                if (comparePersonIndex == result.size()) {
+                    result.add(comparePersonIndex, curPeople);
+                    break;
+                }
+                if (h <= result.get(comparePersonIndex)[0]) {
+                    noShorter++;
+                }
+                if (noShorter > k) {
+                    result.add(comparePersonIndex, curPeople);
+                    break;
+                }
+            }
+        }
+        
+        int[][] resultArray = new int[result.size()][2];
+        for (int i = 0; i < result.size(); i++) {
+            resultArray[i][0] = result.get(i)[0];
+            resultArray[i][1] = result.get(i)[1];
+        }
+        /*
+        // do a final check, if errors are found, throw back the original data
+        for (int curPeopleIndex = 0; curPeopleIndex < resultArray.length; curPeopleIndex++) {
+            int curH = resultArray[curPeopleIndex][0];
+            int curK = resultArray[curPeopleIndex][1];
+            int noShorter = 0;
+            for (int prevPeopleIndex = 0; prevPeopleIndex < curPeopleIndex; prevPeopleIndex++) {
+                if (resultArray[curPeopleIndex][0] >= curH) {
+                    noShorter++;
+                }
+            }
+            if (noShorter != curK) {
+                throw new RuntimeException("my code is bad, or the data are bad");
+            }
+        }
+        */
+        return resultArray;
+    }
+}
