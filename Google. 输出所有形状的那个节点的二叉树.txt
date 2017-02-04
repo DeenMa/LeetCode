@@ -1,0 +1,72 @@
+    private static class TreeNode {
+        int val;
+        TreeNode left;
+        TreeNode right;
+        public TreeNode(int v) {
+            val = v;
+        }
+        
+        public TreeNode(TreeNode tn) { // deep copy of the whole node
+            val = tn.val;
+            if (tn.left != null) {
+                left = new TreeNode(tn.left);
+            }
+            if (tn.right != null) {
+                right = new TreeNode(tn.right);
+            }
+        }
+    }
+    
+    private static List<TreeNode> combine(TreeNode root, List<TreeNode> lefts, List<TreeNode> rights) {
+        List<TreeNode> results = new ArrayList<>();
+        if (lefts.size() == 0) {
+            for (TreeNode right : rights) {
+                TreeNode copy = new TreeNode(root.val);
+                copy.right = new TreeNode(right);
+                results.add(copy);
+            }
+        } else if (rights.size() == 0) {
+            for (TreeNode left : lefts) {
+                TreeNode copy = new TreeNode(root.val);
+                copy.left = new TreeNode(left);
+                results.add(copy);
+            }
+        } else {
+            for (TreeNode left : lefts) {
+                for (TreeNode right : rights) {
+                    TreeNode copy = new TreeNode(root.val);
+                    copy.left = new TreeNode(left);
+                    copy.right = new TreeNode(right);
+                    results.add(copy);
+                }
+            }
+        }
+        return results;
+    }
+    
+    private static List<TreeNode> getBinaryTreesUtil(int start, int end) {
+        List<TreeNode> results = new ArrayList<>();
+        if (start > end) {
+            return results;
+        }
+        if (start == end) {
+            TreeNode tn = new TreeNode(start);
+            results.add(tn);
+            return results;
+        }
+        for (int i = start; i < end + 1; i++) {
+            TreeNode root = new TreeNode(i);
+            List<TreeNode> lefts = getBinaryTreesUtil(start, i - 1);
+            List<TreeNode> rights = getBinaryTreesUtil(i + 1, end);
+            List<TreeNode> combined = combine(root, lefts, rights);
+            results.addAll(combined);
+        }
+        return results;
+    }
+    
+    private static List<TreeNode> getBinaryTrees(int n) {
+        if (n < 1) {
+            throw new IllegalArgumentException("n should be no less than 1");
+        }
+        return getBinaryTreesUtil(1, n);
+    }
