@@ -1,0 +1,35 @@
+    private static HashMap<ListNode, Integer> getComponents(List<ListNode> list) {
+        HashMap<ListNode, Integer> map = new HashMap<>();
+        for (ListNode node : list) {
+            map.put(node, 0);
+        }
+        int componentIndex = 1;
+        for (ListNode node : list) {
+            if (map.get(node) == 0) {
+                while (node != null && map.containsKey(node)) {
+                    map.put(node, componentIndex);
+                    node = node.next;
+                }
+                componentIndex++;
+            }
+        }
+        return map;
+    }
+    
+    private static int calculate(List<ListNode> list, HashMap<ListNode, Integer> components) {
+        HashSet<Integer> groups = new HashSet<>();
+        for (ListNode node : list) {
+            if (!groups.contains(components.get(node))) {
+                groups.add(components.get(node));
+            }
+        }
+        return groups.size();
+    }
+    
+    private static int calculateComponent(List<ListNode> list) {
+        if (list == null || list.size() == 0) {
+            return 0;
+        }
+        HashMap<ListNode, Integer> components = getComponents(list);
+        return calculate(list, components);
+    }
