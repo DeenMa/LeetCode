@@ -89,3 +89,6 @@ A lot of things to learn for this problem:
 From 298: https://leetcode.com/problems/binary-tree-longest-consecutive-sequence/
 Note that: 1. remember to +1, once find a route from children
 2. keep a max that can keep all the time
+
+From ?:
+Note that whenever we add the index during string or list or any container traversal, we need to check whether it has reached the boundary!

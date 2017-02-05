@@ -1,0 +1,59 @@
+/*
+题目：
+给一组dictionary的word，和一个input string。 求跟input string是subsequnce而且长度最长的word.
+*/
+
+private static void addStringToResult(List<String> results, List<Integer> removedIndexes, String word) {
+        if (removedIndexes.size() == 0) {
+            results.add(word);
+            return;
+        }
+        StringBuilder sb = new StringBuilder();
+        int index = 0;
+        for (int i = 0; i < word.length(); i++) {
+            if (index < removedIndexes.size() && i == removedIndexes.get(index)) {
+                index++;
+                continue;
+            }
+            sb.append(word.charAt(i));
+        }
+        String result = sb.toString();
+        results.add(result);
+    }
+    
+    private static void removeChars(List<String> results, List<Integer> removedIndexes, int totalCharsToRemove, String word, int curIndex) {
+        if (removedIndexes.size() == totalCharsToRemove) {
+            addStringToResult(results, removedIndexes, word);
+            return;
+        }
+        if (curIndex == word.length()) {
+            return;
+        }
+        
+        removeChars(results, removedIndexes, totalCharsToRemove, word, curIndex + 1);
+        removedIndexes.add(curIndex);
+        removeChars(results, removedIndexes, totalCharsToRemove, word, curIndex + 1);
+        removedIndexes.remove(removedIndexes.size() - 1);
+    }
+    
+    private static List<String> truncateWord(String word, int num) {
+        List<String> results = new ArrayList<>();
+        List<Integer> removedIndexes = new ArrayList<>();
+        removeChars(results, removedIndexes, num, word, 0);
+        return results;
+    }
+    
+    private static String findLongestSubsequenceInDictionary(Set<String> dictionary, String word) {
+        if (dictionary == null || word.length() == 0) {
+            return null;
+        }
+        for (int i = 0; i < word.length(); i++) {
+            List<String> truncWord = truncateWord(word, i);
+            for (String curWord : truncWord) {
+                if (dictionary.contains(curWord)) {
+                    return curWord;
+                }
+            }
+        }
+        return null;
+    }
