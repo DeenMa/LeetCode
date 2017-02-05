@@ -92,3 +92,6 @@ Note that: 1. remember to +1, once find a route from children
 
 From ?:
 Note that whenever we add the index during string or list or any container traversal, we need to check whether it has reached the boundary!
+
+From ?:
+Sometimes when it is more complicated to analyze strings / arrays with two different size, we can assume first one is always has a size smaller than the second one. if the fact is not, simply reverse them
