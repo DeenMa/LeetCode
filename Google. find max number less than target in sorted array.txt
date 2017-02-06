@@ -1,0 +1,42 @@
+/*
+1. 给一个sorted 数组和一个数字，求数组中小于等于这个数字的最大数。
+*/
+    private static int findMaxLessThan(int[] nums, int x) {
+        if (nums == null || nums.length == 0) {
+            return -1;
+        }
+        int index = -1;
+        int start = 0;
+        int end = nums.length - 1;
+        while (start < end - 1) {
+            int middle = start + (end - start) / 2;
+            if (nums[middle] < x) {
+                if (nums[middle + 1] == x) {
+                    index = middle;
+                    break;
+                }
+                start = middle + 1;
+            } else {
+                end = middle - 1;
+            }
+        }
+        if (start == end) {
+            if (nums[start] < x) {
+                index = start;
+            } else {
+                index = start - 1;
+            }
+        }
+        if (start == end - 1) {
+            if (nums[end] > x) {
+                index = end;
+            } else if (nums[start] > x) {
+                index = start;
+            }
+            index = start - 1;
+        }
+        if (index == -1) {
+            throw new RuntimeException("cannot find a smaller number");
+        }
+        return nums[index];
+    }
