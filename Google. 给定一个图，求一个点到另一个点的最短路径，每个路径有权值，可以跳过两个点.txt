@@ -1,0 +1,112 @@
+/*
+ԭ�⣺
+given some points and these points have the order, and give you a function d(i,j) to get the distance between i and j, given the k that you can at most skip k points( no matter that point is the start or the beginning, and you can also skip continuous points), you need to find the minimum length
+*/    
+
+private static class Vertice {
+        int val;
+        HashMap<Integer, Edge> edges;
+        
+        public Vertice(int v) {
+            val = v;
+            edges = new HashMap<>();
+        }
+        
+        private void connect(Vertice vtc, int weight) {
+            Edge edge = new Edge(this, vtc, weight);
+            edges.put(vtc.val, edge);
+        }
+    }
+    
+    private static class Edge {
+        int weight;
+        Vertice start;
+        Vertice end;
+        
+        public Edge(Vertice s, Vertice e, int w) {
+            start = s;
+            end = e;
+            weight = w;
+        }
+    }
+    
+    private static void addPath(List<List<Vertice>> paths, Stack<Vertice> stack, Vertice end) {
+        Stack<Vertice> temp = new Stack<>();
+        while (!stack.empty()) {
+            temp.push(stack.pop());
+        }
+        List<Vertice> curPath = new ArrayList<>();
+        while (!temp.empty()) {
+            Vertice curVertice = temp.pop();
+            curPath.add(curVertice);
+            stack.push(curVertice);
+        }
+        curPath.add(end);
+        paths.add(curPath);
+    }
+    
+    private static void findPaths(List<List<Vertice>> paths, Stack<Vertice> stack, Vertice end) {
+        Vertice vPeek = stack.peek();
+        Iterator<Integer> iEdge = vPeek.edges.keySet().iterator();
+        while (iEdge.hasNext()) {
+            int neighborVal = iEdge.next();
+            Edge edge = vPeek.edges.get(neighborVal);
+            Vertice vNeighbor = edge.end;
+            if (vNeighbor.val == end.val) {
+                addPath(paths, stack, end);
+            } else {
+                stack.push(vNeighbor);
+                findPaths(paths, stack, end);
+                stack.pop();
+            }
+        }
+    }
+    
+    private static int getDistance(List<Vertice> curPath) {
+        if (curPath.size() < 4) { // even if 3 - we will skip all 2 paths
+            return 0;
+        }
+        PriorityQueue<Integer> distances = new PriorityQueue<>(curPath.size(), new Comparator<Integer>() {
+            public int compare(Integer i1, Integer i2) {
+                return i2 - i1;
+            }
+        });
+        for (int i = 0; i < curPath.size() - 1; i++) {
+            Vertice curVertice = curPath.get(i);
+            Vertice nxtVertice = curPath.get(i + 1);
+            Edge curEdge = curVertice.edges.get(nxtVertice.val);
+            distances.offer(curEdge.weight);
+        }
+        distances.poll();
+        distances.poll(); // discard two largest
+        int distance = 0;
+        while (distances.size() > 0) {
+            distance += distances.poll();
+        }
+        return distance;
+    }
+    
+    private static int analyzePaths(List<List<Vertice>> paths) {
+        int minDistance = Integer.MAX_VALUE;
+        for (List<Vertice> curPath : paths) {
+            int curDistance = getDistance(curPath);
+            minDistance = Math.min(curDistance, minDistance);
+        }
+        return minDistance;
+    }
+    
+    public static int findMinLength(HashMap<Integer, Vertice> map, int first, int last) {
+        if (map == null || !map.containsKey(first) || !map.containsKey(last)) {
+            return -1;
+        }
+        if (first == last) {
+            return 0;
+        }
+        Vertice vFirst = map.get(first);
+        Vertice vLast = map.get(last);
+        Stack<Vertice> stack = new Stack<>();
+        stack.push(vFirst);
+        List<List<Vertice>> paths = new ArrayList<>();
+        findPaths(paths, stack, vLast);
+        return analyzePaths(paths);
+    }
